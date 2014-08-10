@@ -1,6 +1,8 @@
-# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket) [![Sauce Test Status](https://saucelabs.com/browser-matrix/simple-websocket.svg)](https://saucelabs.com/u/simple-websocket)
+# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket)
 
 #### Simple, EventEmitter API for WebSockets
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/simple-websocket.svg)](https://saucelabs.com/u/simple-websocket)
 
 ## features
 
