@@ -1,14 +1,14 @@
 # simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket) [![Sauce Test Status](https://saucelabs.com/browser-matrix/feross-simple-websocket.svg)](https://saucelabs.com/u/feross-simple-websocket)
 
-#### Simple, EventEmitter API for WebSockets (browser)
+#### Simple, EventEmitter API for WebSockets
 
 ## features
 
-- **super simple** API for working with WebSockets
+- **super simple** API for working with WebSockets in the browser
 - Uses `EventEmitter` interface
-- supports text and binary data
+- supports **text and binary data**
 
-This module works great in the browser with [browserify](http://browserify.org/), and it's used by [WebTorrent](http://webtorrent.io)!
+This module works in the browser with [browserify](http://browserify.org/), and it's used by [WebTorrent](http://webtorrent.io)!
 
 ## install
 
