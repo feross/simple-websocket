@@ -54,7 +54,7 @@ Socket.prototype._onerror = function (err) {
   this._errored = true
 
   // On error, close socket...
-  this.close()
+  this.destroy()
 
   // ...and try to reconnect after a timeout
   if (this._reconnect) {
