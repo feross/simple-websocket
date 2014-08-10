@@ -1,0 +1,8 @@
+ui: tape
+browsers:
+  - name: chrome
+    version: 35..latest
+  - name: firefox
+    version: 30..latest
+  - name: safari
+    version: 6..latest

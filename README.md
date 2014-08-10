@@ -19,9 +19,9 @@ npm install simple-websocket
 ## usage
 
 ```js
-var Socket = require('simple-websocket')
+var SimpleWebsocket = require('simple-websocket')
 
-var socket = new Socket('ws://echo.websocket.org')
+var socket = new SimpleWebsocket('ws://echo.websocket.org')
 socket.on('ready', function () {
   // socket is connected!
   socket.send('sup!')
@@ -32,9 +32,12 @@ socket.on('message', function (data) {
 })
 ```
 
+Note: If you're **NOT** using browserify, then use the standalone `simplewebsocket.bundle.js`
+file included in this repo. This exports a `SimpleWebsocket` function on the `window`.
+
 ## api
 
-### `socket = new Socket([opts])`
+### `socket = new SimpleWebsocket([opts])`
 
 Create a new WebSocket connection.
 
