@@ -67,12 +67,11 @@ Socket.prototype._onerror = function (err) {
 
 
 Socket.prototype._onmessage = function (event) {
+  var message = event.data
   try {
-    var message = JSON.parse(event.data)
-    this.emit('message', message)
-  } catch (err) {
-    this.emit('message', event.data)
-  }
+    message = JSON.parse(event.data)
+  } catch (err) {}
+  this.emit('message', message)
 }
 
 Socket.prototype._onclose = function () {
