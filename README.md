@@ -1,4 +1,4 @@
-# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket) [![gittip](https://img.shields.io/gittip/feross.svg)](https://www.gittip.com/feross/) [![Sauce Test Status](https://saucelabs.com/browser-matrix/feross-simple-websocket.svg)](https://saucelabs.com/u/feross-simple-websocket)
+# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket) [![Sauce Test Status](https://saucelabs.com/browser-matrix/feross-simple-websocket.svg)](https://saucelabs.com/u/feross-simple-websocket)
 
 #### Simple, EventEmitter API for WebSockets (browser)
 
