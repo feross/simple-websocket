@@ -38,7 +38,7 @@
   "scripts": {
     "test": "zuul -- test/*.js",
     "prepublish": "npm run build",
-    "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c -m > simplewebsocket.bundle.js"
+    "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.bundle.js"
   },
   "testling": {
     "files": "test/*.js"
