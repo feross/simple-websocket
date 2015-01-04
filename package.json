@@ -37,6 +37,7 @@
   },
   "scripts": {
     "test": "zuul -- test/*.js",
+    "test-local": "zuul --local -- test/*.js",
     "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.bundle.js"
   },
   "testling": {
