@@ -18,7 +18,7 @@
     "browserify": "^7.0.3",
     "tape": "^3.0.3",
     "uglify-js": "^2.4.15",
-    "zuul": "^1.10.1"
+    "zuul": "^2.1.1"
   },
   "homepage": "https://github.com/feross/simple-websocket",
   "keywords": [
