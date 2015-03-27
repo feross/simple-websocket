@@ -17,6 +17,8 @@ function Socket (url, opts) {
   this._reconnect = (opts.reconnect !== undefined)
     ? opts.reconnect
     : RECONNECT_TIMEOUT
+  this.ready = false
+
   this._init()
 }
 
@@ -47,6 +49,7 @@ Socket.prototype._init = function () {
 }
 
 Socket.prototype._onopen = function () {
+  this.ready = true
   this.emit('ready')
 }
 
