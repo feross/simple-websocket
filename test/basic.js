@@ -3,6 +3,7 @@ var test = require('tape')
 
 test('basic echo test', function (t) {
   t.plan(3)
+
   var socket = new Socket('wss://echo.websocket.org')
   socket.on('ready', function () {
     t.pass('ready emitted')
