@@ -41,6 +41,11 @@
     "test-local": "zuul --local -- test/*.js",
     "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.bundle.js"
   },
+  "standard": {
+    "ignore": [
+      "simplewebsocket.bundle.js"
+    ]
+  },
   "testling": {
     "files": "test/*.js"
   }
