@@ -3,8 +3,11 @@ module.exports = Socket
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var once = require('once')
+var ws = require('ws') // websockets in node - will be empty object in browser
 
 var RECONNECT_TIMEOUT = 5000
+
+var WebSocket = typeof window !== 'undefined' ? window.WebSocket : ws
 
 inherits(Socket, EventEmitter)
 
@@ -23,7 +26,7 @@ function Socket (url, opts) {
 }
 
 Socket.prototype.send = function (message) {
-  if (this._ws && this._ws.readyState === window.WebSocket.OPEN) {
+  if (this._ws && this._ws.readyState === WebSocket.OPEN) {
     if (typeof message === 'object') message = JSON.stringify(message)
     this._ws.send(message)
   }
@@ -40,7 +43,7 @@ Socket.prototype.destroy = function (onclose) {
 
 Socket.prototype._init = function () {
   this._errored = false
-  this._ws = new window.WebSocket(this._url)
+  this._ws = new WebSocket(this._url)
   this._ws.onopen = this._onopen.bind(this)
   this._ws.onmessage = this._onmessage.bind(this)
   this._ws.onclose = this._onclose.bind(this)
