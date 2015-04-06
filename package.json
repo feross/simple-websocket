@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "browserify": "^9.0.3",
+    "standard": "^3.3.2",
     "tape": "^3.0.3",
     "uglify-js": "^2.4.15",
     "zuul": "^2.1.1"
@@ -36,7 +37,7 @@
     "url": "git://github.com/feross/simple-websocket.git"
   },
   "scripts": {
-    "test": "zuul -- test/*.js",
+    "test": "standard && zuul -- test/*.js",
     "test-local": "zuul --local -- test/*.js",
     "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.bundle.js"
   },

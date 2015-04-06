@@ -23,9 +23,8 @@ function Socket (url, opts) {
 }
 
 Socket.prototype.send = function (message) {
-  if (this._ws && this._ws.readyState === WebSocket.OPEN) {
-    if (typeof message === 'object')
-      message = JSON.stringify(message)
+  if (this._ws && this._ws.readyState === window.WebSocket.OPEN) {
+    if (typeof message === 'object') message = JSON.stringify(message)
     this._ws.send(message)
   }
 }
@@ -41,7 +40,7 @@ Socket.prototype.destroy = function (onclose) {
 
 Socket.prototype._init = function () {
   this._errored = false
-  this._ws = new WebSocket(this._url)
+  this._ws = new window.WebSocket(this._url)
   this._ws.onopen = this._onopen.bind(this)
   this._ws.onmessage = this._onmessage.bind(this)
   this._ws.onclose = this._onclose.bind(this)
@@ -67,7 +66,6 @@ Socket.prototype._onerror = function (err) {
     this.emit('error', err)
   }
 }
-
 
 Socket.prototype._onmessage = function (event) {
   var message = event.data
