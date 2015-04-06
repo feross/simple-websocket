@@ -7,8 +7,6 @@ browsers:
   - name: safari
     version: latest
   - name: ie
-  - name: opera
-    version: latest
     version: 10
   - name: iphone
     version: latest
