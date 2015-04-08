@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "inherits": "^2.0.1",
+    "is-typedarray": "0.0.0",
     "once": "^1.3.0",
+    "typedarray-to-buffer": "^3.0.1",
     "ws": "^0.7.1"
   },
   "devDependencies": {

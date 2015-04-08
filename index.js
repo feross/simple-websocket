@@ -1,8 +1,12 @@
+/* global Blob */
+
 module.exports = Socket
 
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
+var isTypedArray = require('is-typedarray')
 var once = require('once')
+var toBuffer = require('typedarray-to-buffer')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
 var RECONNECT_TIMEOUT = 5000
@@ -25,10 +29,17 @@ function Socket (url, opts) {
   this._init()
 }
 
-Socket.prototype.send = function (message) {
-  if (this._ws && this._ws.readyState === WebSocket.OPEN) {
-    if (typeof message === 'object') message = JSON.stringify(message)
-    this._ws.send(message)
+Socket.prototype.send = function (chunk) {
+  if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return
+
+  if (chunk instanceof ArrayBuffer || typeof chunk === 'string' ||
+      Buffer.isBuffer(chunk) || (typeof Blob !== 'undefined' && chunk instanceof Blob)) {
+    this._ws.send(chunk)
+  } else if (isTypedArray.strict(chunk)) {
+    // TODO: don't send full arraybuffer, respect the "view" on the arraybuffer
+    this._ws.send(chunk.buffer)
+  } else {
+    this._ws.send(JSON.stringify(chunk))
   }
 }
 
@@ -44,6 +55,7 @@ Socket.prototype.destroy = function (onclose) {
 Socket.prototype._init = function () {
   this._errored = false
   this._ws = new WebSocket(this._url)
+  this._ws.binaryType = 'arraybuffer'
   this._ws.onopen = this._onopen.bind(this)
   this._ws.onmessage = this._onmessage.bind(this)
   this._ws.onclose = this._onclose.bind(this)
@@ -72,9 +84,13 @@ Socket.prototype._onerror = function (err) {
 
 Socket.prototype._onmessage = function (event) {
   var message = event.data
-  try {
-    message = JSON.parse(event.data)
-  } catch (err) {}
+  if (message instanceof ArrayBuffer) {
+    message = toBuffer(new Uint8Array(message))
+  } else {
+    try {
+      message = JSON.parse(message)
+    } catch (err) {}
+  }
   this.emit('message', message)
 }
 

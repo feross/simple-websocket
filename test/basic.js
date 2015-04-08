@@ -21,7 +21,7 @@ test('echo text', function (t) {
 })
 
 test('echo binary data', function (t) {
-  t.plan(3)
+  t.plan(4)
 
   var socket = new Socket(SOCKET_SERVER)
   socket.on('ready', function () {
