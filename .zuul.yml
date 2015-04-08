@@ -6,8 +6,6 @@ browsers:
     version: latest
   - name: safari
     version: latest
-  - name: ie
-    version: 10
   - name: iphone
     version: latest
   - name: ipad
