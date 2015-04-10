@@ -23,6 +23,7 @@
   "devDependencies": {
     "browserify": "^9.0.3",
     "standard": "^3.3.2",
+    "string-to-stream": "^1.0.0",
     "tape": "^4.0.0",
     "uglify-js": "^2.4.15",
     "zuul": "^2.1.1"
