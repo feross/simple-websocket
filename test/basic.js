@@ -9,7 +9,7 @@ test('echo string', function (t) {
   var socket = new Socket(SOCKET_SERVER)
   socket.on('connect', function () {
     t.pass('connect emitted')
-    socket.write('sup!')
+    socket.send('sup!')
     socket.on('data', function (data) {
       t.equal(data, 'sup!')
 
@@ -26,7 +26,7 @@ test('echo Uint8Array', function (t) {
   var socket = new Socket(SOCKET_SERVER)
   socket.on('connect', function () {
     t.pass('connect emitted')
-    socket.write(new Uint8Array([1, 2, 3]))
+    socket.send(new Uint8Array([1, 2, 3]))
     socket.on('data', function (data) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, new Buffer([1, 2, 3]), 'got correct data')
@@ -44,7 +44,7 @@ test('echo Buffer', function (t) {
   var socket = new Socket(SOCKET_SERVER)
   socket.on('connect', function () {
     t.pass('connect emitted')
-    socket.write(new Buffer([1, 2, 3]))
+    socket.send(new Buffer([1, 2, 3]))
     socket.on('data', function (data) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, new Buffer([1, 2, 3]), 'got correct data')
@@ -62,7 +62,7 @@ test('echo ArrayBuffer', function (t) {
   var socket = new Socket(SOCKET_SERVER)
   socket.on('connect', function () {
     t.pass('connect emitted')
-    socket.write(new Uint8Array([1, 2, 3]).buffer)
+    socket.send(new Uint8Array([1, 2, 3]).buffer)
     socket.on('data', function (data) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, new Buffer([1, 2, 3]), 'got correct data')
