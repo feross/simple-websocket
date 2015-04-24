@@ -22,7 +22,7 @@ function Socket (url, opts) {
   var self = this
   if (!(self instanceof Socket)) return new Socket(url, opts)
   if (!opts) opts = {}
-  debug('new websocket %s %o', url, opts)
+  debug('new websocket: %s %o', url, opts)
 
   opts.allowHalfOpen = false
   stream.Duplex.call(self, opts)
@@ -172,10 +172,11 @@ Socket.prototype._onClose = function () {
   self._destroy()
 }
 
-Socket.prototype._onError = function (err) {
+Socket.prototype._onError = function () {
   var self = this
   if (self.destroyed) return
-  debug('error %s', err.message || err)
+  var err = new Error('connection error to ' + self.url)
+  debug('error: %s', err.message || err)
   self._destroy(err)
 }
 
