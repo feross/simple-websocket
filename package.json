@@ -21,7 +21,7 @@
     "ws": "^0.7.1"
   },
   "devDependencies": {
-    "browserify": "^9.0.3",
+    "browserify": "^10.1.0",
     "standard": "^3.3.2",
     "tape": "^4.0.0",
     "uglify-js": "^2.4.15",
