@@ -31,7 +31,9 @@ function Socket (url, opts) {
   self.connected = false
   self.destroyed = false
 
-  self._buffer = []
+  self._chunk = null
+  self._cb = null
+  self._interval = null
 
   self._ws = new WebSocket(self.url)
   self._ws.binaryType = 'arraybuffer'
@@ -44,7 +46,11 @@ function Socket (url, opts) {
     if (self.connected) {
       // When stream is finished writing, close socket connection. Half open connections
       // are currently not supported.
-      self._destroy()
+      // Wait a bit before destroying so the socket flushes.
+      // TODO: is there a more reliable way to accomplish this?
+      setTimeout(function () {
+        self._destroy()
+      }, 100)
     } else {
       // If socket is not connected when stream is finished writing, wait until data is
       // flushed to network at "connect" event.
@@ -56,12 +62,14 @@ function Socket (url, opts) {
       })
     }
   })
+
 }
 
-Socket.prototype.send = function (chunk, cb) {
+Socket.prototype.send = function (chunk) {
   var self = this
-  if (!cb) cb = noop
-  self._write(chunk, undefined, cb)
+  var len = chunk.length || chunk.byteLength || chunk.size
+  self._ws.send(chunk)
+  debug('write: %d bytes', len)
 }
 
 Socket.prototype.destroy = function (onclose) {
@@ -78,6 +86,11 @@ Socket.prototype._destroy = function (err, onclose) {
 
   self.connected = false
   self.destroyed = true
+
+  clearInterval(self._interval)
+  self._interval = null
+  self._chunk = null
+  self._cb = null
 
   if (self._ws) {
     try {
@@ -112,24 +125,25 @@ Socket.prototype._write = function (chunk, encoding, cb) {
   var self = this
   if (self.destroyed) return cb(new Error('cannot write after socket is destroyed'))
 
-  var len = chunk.length || chunk.byteLength || chunk.size
-  if (!self.connected) {
-    debug('_write before ready: length %d', len)
-    self._buffer.push(chunk)
-    cb(null)
-    return
+  if (!isTypedArray.strict(chunk) && !(chunk instanceof ArrayBuffer) &&
+    !Buffer.isBuffer(chunk) && typeof chunk !== 'string' &&
+    (typeof Blob === 'undefined' || !(chunk instanceof Blob))) {
+    chunk = JSON.stringify(chunk)
   }
-  debug('_write: length %d', len)
 
-  if (isTypedArray.strict(chunk) || chunk instanceof ArrayBuffer ||
-    Buffer.isBuffer(chunk) || typeof chunk === 'string' ||
-    (typeof Blob !== 'undefined' && chunk instanceof Blob)) {
-    self._ws.send(chunk)
+  if (self.connected) {
+    self.send(chunk)
+    if (typeof ws !== 'function' && self._ws.bufferedAmount) {
+      debug('start backpressure: bufferedAmount %d', self._ws.bufferedAmount)
+      self._cb = cb
+    } else {
+      cb(null)
+    }
   } else {
-    self._ws.send(JSON.stringify(chunk))
+    debug('write before connect')
+    self._chunk = chunk
+    self._cb = cb
   }
-
-  cb(null)
 }
 
 Socket.prototype._onMessage = function (event) {
@@ -156,10 +170,29 @@ Socket.prototype._onOpen = function () {
   if (self.connected || self.destroyed) return
   self.connected = true
 
-  self._buffer.forEach(function (chunk) {
-    self.send(chunk)
-  })
-  self._buffer = []
+  if (self._chunk) {
+    self.send(self._chunk)
+    self._chunk = null
+    debug('sent chunk from "write before connect"')
+
+    var cb = self._cb
+    self._cb = null
+    cb(null)
+  }
+
+  // No backpressure in node. The `ws` module has a buggy `bufferedAmount` property.
+  // See: https://github.com/websockets/ws/issues/492
+  if (typeof ws !== 'function') {
+    self._interval = setInterval(function () {
+      console.log(self._ws.bufferedAmount)
+      if (!self._cb || !self._ws || self._ws.bufferedAmount) return
+      debug('ending backpressure: bufferedAmount %d', self._ws.bufferedAmount)
+      var cb = self._cb
+      self._cb = null
+      cb(null)
+    }, 150)
+    if (self._interval.unref) self._interval.unref()
+  }
 
   debug('connect')
   self.emit('connect')
@@ -179,5 +212,3 @@ Socket.prototype._onError = function () {
   debug('error: %s', err.message || err)
   self._destroy(err)
 }
-
-function noop () {}
