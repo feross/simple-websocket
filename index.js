@@ -184,7 +184,6 @@ Socket.prototype._onOpen = function () {
   // See: https://github.com/websockets/ws/issues/492
   if (typeof ws !== 'function') {
     self._interval = setInterval(function () {
-      console.log(self._ws.bufferedAmount)
       if (!self._cb || !self._ws || self._ws.bufferedAmount) return
       debug('ending backpressure: bufferedAmount %d', self._ws.bufferedAmount)
       var cb = self._cb
