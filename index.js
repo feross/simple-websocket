@@ -150,7 +150,7 @@ Socket.prototype._onMessage = function (event) {
   var self = this
   if (self.destroyed) return
   var data = event.data
-  debug('on message: length %d', data.byteLength || data.length)
+  debug('got message: %d bytes', data.byteLength || data.length)
 
   if (data instanceof ArrayBuffer) {
     data = toBuffer(new Uint8Array(data))
