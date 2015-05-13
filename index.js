@@ -65,8 +65,19 @@ function Socket (url, opts) {
 
 }
 
+/**
+ * Send text/binary data to the WebSocket server.
+ * @param {TypedArrayView|ArrayBuffer|Buffer|string|Blob|Object} chunk
+ */
 Socket.prototype.send = function (chunk) {
   var self = this
+
+  if (!isTypedArray.strict(chunk) && !(chunk instanceof ArrayBuffer) &&
+    !Buffer.isBuffer(chunk) && typeof chunk !== 'string' &&
+    (typeof Blob === 'undefined' || !(chunk instanceof Blob))) {
+    chunk = JSON.stringify(chunk)
+  }
+
   var len = chunk.length || chunk.byteLength || chunk.size
   self._ws.send(chunk)
   debug('write: %d bytes', len)
@@ -115,21 +126,9 @@ Socket.prototype._destroy = function (err, onclose) {
 
 Socket.prototype._read = function () {}
 
-/**
- * Send text/binary data to the WebSocket server.
- * @param {string|Buffer|TypedArrayView|ArrayBuffer|Blob} chunk
- * @param {string} encoding
- * @param {function} cb
- */
 Socket.prototype._write = function (chunk, encoding, cb) {
   var self = this
   if (self.destroyed) return cb(new Error('cannot write after socket is destroyed'))
-
-  if (!isTypedArray.strict(chunk) && !(chunk instanceof ArrayBuffer) &&
-    !Buffer.isBuffer(chunk) && typeof chunk !== 'string' &&
-    (typeof Blob === 'undefined' || !(chunk instanceof Blob))) {
-    chunk = JSON.stringify(chunk)
-  }
 
   if (self.connected) {
     self.send(chunk)

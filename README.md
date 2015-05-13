@@ -24,12 +24,12 @@ npm install simple-websocket
 var SimpleWebsocket = require('simple-websocket')
 
 var socket = new SimpleWebsocket('ws://echo.websocket.org')
-socket.on('ready', function () {
+socket.on('connect', function () {
   // socket is connected!
   socket.send('sup!')
 })
 
-socket.on('message', function (data) {
+socket.on('data', function (data) {
   console.log('got message: ' + data)
 })
 ```
@@ -57,9 +57,15 @@ The options do the following:
 
 ### `socket.send(data)`
 
-Send text/binary data to the remote socket. `data` can be any of several types: `String`, `Buffer` (see [buffer](https://github.com/feross/buffer)), TypedArrayView (Uint8Array, etc.), or ArrayBuffer.
+Send text/binary data to the WebSocket server. `data` can be any of several types:
+`String`, `Buffer` (see [buffer](https://github.com/feross/buffer)), `TypedArrayView`
+(`Uint8Array`, etc.), `ArrayBuffer`, or `Blob` (in browsers that support it).
 
-Note: this method should not be called until the `sockt.on('ready')` event has fired.
+Other data types will be transformed with `JSON.stringify` before sending. This is handy
+for sending object literals across like this: `socket.send({ type: 'data', data: 'hi' })`.
+
+Note: If this method is called before the `socket.on('connect')` event has fired, then
+data will be buffered.
 
 ### `socket.destroy([onclose])`
 
@@ -70,11 +76,11 @@ If the optional `onclose` paramter is passed, then it will be registered as a li
 
 ## events
 
-### `socket.on('ready', function () {})`
+### `socket.on('connect', function () {})`
 
 Fired when the websocket connection is ready to use.
 
-### `socket.on('message', function (data) {})`
+### `socket.on('data', function (data) {})`
 
 Received a message from the websocket server.
 
