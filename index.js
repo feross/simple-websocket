@@ -95,6 +95,11 @@ Socket.prototype._destroy = function (err, onclose) {
 
   debug('destroy (error: %s)', err && err.message)
 
+  this.readable = this.writable = false
+
+  if (!self._readableState.ended) self.push(null)
+  if (!self._writableState.finished) self.end()
+
   self.connected = false
   self.destroyed = true
 
@@ -114,11 +119,6 @@ Socket.prototype._destroy = function (err, onclose) {
     self._ws.onerror = null
   }
   self._ws = null
-
-  this.readable = this.writable = false
-
-  if (!self._readableState.ended) self.push(null)
-  if (!self._writableState.finished) self.end()
 
   if (err) self.emit('error', err)
   self.emit('close')
