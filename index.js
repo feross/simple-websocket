@@ -11,6 +11,8 @@ var ws = require('ws') // websockets in node - will be empty object in browser
 
 var WebSocket = typeof window !== 'undefined' ? window.WebSocket : ws
 
+var MAX_BUFFERED_AMOUNT = 1000 * 1000
+
 inherits(Socket, stream.Duplex)
 
 /**
@@ -132,7 +134,7 @@ Socket.prototype._write = function (chunk, encoding, cb) {
 
   if (self.connected) {
     self.send(chunk)
-    if (typeof ws !== 'function' && self._ws.bufferedAmount) {
+    if (typeof ws !== 'function' && self._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
       debug('start backpressure: bufferedAmount %d', self._ws.bufferedAmount)
       self._cb = cb
     } else {
@@ -183,7 +185,7 @@ Socket.prototype._onOpen = function () {
   // See: https://github.com/websockets/ws/issues/492
   if (typeof ws !== 'function') {
     self._interval = setInterval(function () {
-      if (!self._cb || !self._ws || self._ws.bufferedAmount) return
+      if (!self._cb || !self._ws || self._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) return
       debug('ending backpressure: bufferedAmount %d', self._ws.bufferedAmount)
       var cb = self._cb
       self._cb = null
