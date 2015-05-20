@@ -21,9 +21,9 @@ inherits(Socket, stream.Duplex)
 function Socket (url, opts) {
   var self = this
   if (!(self instanceof Socket)) return new Socket(url, opts)
+  if (!opts) opts = {}
   debug('new websocket: %s %o', url, opts)
 
-  if (!opts) opts = {}
   opts.allowHalfOpen = false
   if (opts.highWaterMark == null) opts.highWaterMark = 1024 * 1024
 
