@@ -43,7 +43,9 @@ function Socket (url, opts) {
   self._ws.onopen = self._onOpen.bind(self)
   self._ws.onmessage = self._onMessage.bind(self)
   self._ws.onclose = self._onClose.bind(self)
-  self._ws.onerror = self._onError.bind(self)
+  self._ws.onerror = function () {
+    self._onError(new Error('connection error to ' + self.url))
+  }
 
   self.on('finish', function () {
     if (self.connected) {
@@ -133,7 +135,11 @@ Socket.prototype._write = function (chunk, encoding, cb) {
   if (self.destroyed) return cb(new Error('cannot write after socket is destroyed'))
 
   if (self.connected) {
-    self.send(chunk)
+    try {
+      self.send(chunk)
+    } catch (err) {
+      return self._onError(err)
+    }
     if (typeof ws !== 'function' && self._ws.bufferedAmount > self._maxBufferedAmount) {
       debug('start backpressure: bufferedAmount %d', self._ws.bufferedAmount)
       self._cb = cb
@@ -172,7 +178,11 @@ Socket.prototype._onOpen = function () {
   self.connected = true
 
   if (self._chunk) {
-    self.send(self._chunk)
+    try {
+      self.send(self._chunk)
+    } catch (err) {
+      return self._onError(err)
+    }
     self._chunk = null
     debug('sent chunk from "write before connect"')
 
@@ -207,10 +217,9 @@ Socket.prototype._onClose = function () {
   self._destroy()
 }
 
-Socket.prototype._onError = function () {
+Socket.prototype._onError = function (err) {
   var self = this
   if (self.destroyed) return
-  var err = new Error('connection error to ' + self.url)
   debug('error: %s', err.message || err)
   self._destroy(err)
 }
