@@ -113,19 +113,25 @@ Socket.prototype._destroy = function (err, onclose) {
   self._cb = null
 
   if (self._ws) {
+    var ws = self._ws
+    var onClose = function () {
+      ws.onclose = null
+      self.emit('close')
+    }
     try {
-      self._ws.close()
-    } catch (err) {}
+      ws.onclose = onClose
+      ws.close()
+    } catch (err) {
+      onClose()
+    }
 
-    self._ws.onopen = null
-    self._ws.onmessage = null
-    self._ws.onclose = null
-    self._ws.onerror = null
+    ws.onopen = null
+    ws.onmessage = null
+    ws.onerror = null
   }
   self._ws = null
 
   if (err) self.emit('error', err)
-  self.emit('close')
 }
 
 Socket.prototype._read = function () {}
