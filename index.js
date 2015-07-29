@@ -118,11 +118,15 @@ Socket.prototype._destroy = function (err, onclose) {
       ws.onclose = null
       self.emit('close')
     }
-    try {
-      ws.onclose = onClose
-      ws.close()
-    } catch (err) {
+    if (ws.readyState === WebSocket.CLOSED) {
       onClose()
+    } else {
+      try {
+        ws.onclose = onClose
+        ws.close()
+      } catch (err) {
+        onClose()
+      }
     }
 
     ws.onopen = null
