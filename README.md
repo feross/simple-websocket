@@ -43,17 +43,7 @@ file included in this repo. This exports a `SimpleWebsocket` function on the `wi
 
 Create a new WebSocket connection.
 
-If `opts` is specified, then the default options (shown below) will be overridden.
-
-```
-{
-  reconnect: 5000
-}
-```
-
-The options do the following:
-
-- `reconnect` - If websocket encounters an error, reconnect after this timeout (in milliseconds). Set to `false` to disable automatic reconnect on error.
+If `opts` is specified, then it will be passed through to the underlying superclass, `stream.Duplex`.
 
 ### `socket.send(data)`
 
