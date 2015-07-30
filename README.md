@@ -7,8 +7,8 @@
 ## features
 
 - **super simple** API for working with WebSockets in the browser
-- Uses `EventEmitter` interface
 - supports **text and binary data**
+- node.js [duplex stream](http://nodejs.org/api/stream.html) interface
 
 This module works in the browser with [browserify](http://browserify.org/), and it's used by [WebTorrent](http://webtorrent.io)!
 
