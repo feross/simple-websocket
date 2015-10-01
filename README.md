@@ -63,6 +63,20 @@ Destroy and cleanup this websocket connection.
 
 If the optional `onclose` paramter is passed, then it will be registered as a listener on the 'close' event.
 
+### `Socket.WEBSOCKET_SUPPORT`
+
+Detect WebSocket support in the javascript environment.
+
+```js
+var Socket = require('simple-websocket')
+
+if (Socket.WEBSOCKET_SUPPORT) {
+  // websocket support!
+} else {
+  // fallback
+}
+```
+
 
 ## events
 

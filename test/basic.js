@@ -73,3 +73,8 @@ test('echo ArrayBuffer', function (t) {
     })
   })
 })
+
+test('Socket.WEBSOCKET_SUPPORT', function (t) {
+  t.ok(Socket.WEBSOCKET_SUPPORT)
+  t.end()
+})

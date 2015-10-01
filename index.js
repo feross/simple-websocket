@@ -69,6 +69,8 @@ function Socket (url, opts) {
   })
 }
 
+Socket.WEBSOCKET_SUPPORT = !!WebSocket
+
 /**
  * Send text/binary data to the WebSocket server.
  * @param {TypedArrayView|ArrayBuffer|Buffer|string|Blob|Object} chunk
