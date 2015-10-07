@@ -98,13 +98,7 @@ Called when the websocket connection has closed.
 
 `err` is an `Error` object.
 
-Fired when a fatal error occurs. If the `reconnect` option is set to something truthy (defaults to `5000`), then this event will never get emitted because the socket will automatically reconnect on error.
-
-### `socket.on('warning', function (err) {})`
-
-`err` is an `Error` object.
-
-Fired when an error occurs but an auto-reconnect will be attempted. Thus, it's only a `warning`, not a full-fledged `error`.
+Fired when a fatal error occurs.
 
 ## real-world applications that use simple-websocket
 
