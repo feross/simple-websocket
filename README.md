@@ -1,4 +1,4 @@
-# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket)
+# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket/master.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket)
 
 #### Simple, EventEmitter API for WebSockets
 
