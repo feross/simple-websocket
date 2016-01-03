@@ -17,7 +17,8 @@
     "debug": "^2.1.3",
     "inherits": "^2.0.1",
     "is-typedarray": "^1.0.0",
-    "typedarray-to-buffer": "^3.0.1"
+    "typedarray-to-buffer": "^3.0.1",
+    "ws": "^1.0.0"
   },
   "devDependencies": {
     "browserify": "^12.0.1",
@@ -52,11 +53,5 @@
     "ignore": [
       "simplewebsocket.bundle.js"
     ]
-  },
-  "testling": {
-    "files": "test/*.js"
-  },
-  "optionalDependencies": {
-    "ws": "^0.8.0"
   }
 }
