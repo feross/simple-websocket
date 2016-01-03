@@ -6,7 +6,6 @@ var debug = require('debug')('simple-websocket')
 var inherits = require('inherits')
 var isTypedArray = require('is-typedarray')
 var stream = require('stream')
-var toBuffer = require('typedarray-to-buffer')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
 var WebSocket = typeof window !== 'undefined' ? window.WebSocket : ws
@@ -172,7 +171,7 @@ Socket.prototype._onMessage = function (event) {
   debug('read: %d bytes', data.byteLength || data.length)
 
   if (data instanceof ArrayBuffer) {
-    data = toBuffer(new Uint8Array(data))
+    data = new Buffer(data)
     self.push(data)
   } else if (Buffer.isBuffer(data)) {
     self.push(data)
