@@ -34,7 +34,7 @@ socket.on('data', function (data) {
 })
 ```
 
-Note: If you're **NOT** using browserify, then use the standalone `simplewebsocket.bundle.js`
+Note: If you're **NOT** using browserify, then use the standalone `simplewebsocket.min.js`
 file included in this repo. This exports a `SimpleWebsocket` function on the `window`.
 
 ## api
