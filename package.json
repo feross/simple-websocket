@@ -28,12 +28,12 @@
   },
   "homepage": "https://github.com/feross/simple-websocket",
   "keywords": [
-    "websocket",
-    "socket",
-    "ws",
     "simple",
     "simple websocket",
-    "simple-websocket"
+    "simple-websocket",
+    "socket",
+    "websocket",
+    "ws"
   ],
   "license": "MIT",
   "main": "index.js",
@@ -42,10 +42,10 @@
     "url": "git://github.com/feross/simple-websocket.git"
   },
   "scripts": {
+    "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.min.js",
     "test": "standard && npm run test-node && npm run test-browser",
     "test-browser": "zuul -- test/*.js",
     "test-browser-local": "zuul --local -- test/*.js",
-    "test-node": "tape test/*.js",
-    "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.min.js"
+    "test-node": "tape test/*.js"
   }
 }
