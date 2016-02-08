@@ -47,10 +47,5 @@
     "test-browser-local": "zuul --local -- test/*.js",
     "test-node": "tape test/*.js",
     "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.min.js"
-  },
-  "standard": {
-    "ignore": [
-      "simplewebsocket.min.js"
-    ]
   }
 }
