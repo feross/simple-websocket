@@ -89,6 +89,7 @@ Fired when the websocket connection is ready to use.
 Received a message from the websocket server.
 
 `data` will be either a `String` or a `Buffer/Uint8Array` (see [buffer](https://github.com/feross/buffer)).
+JSON strings will be parsed and the resulting `Object` emitted.
 
 ### `socket.on('close', function () {})`
 
