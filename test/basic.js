@@ -11,7 +11,7 @@ test('echo string', function (t) {
     t.pass('connect emitted')
     socket.send('sup!')
     socket.on('data', function (data) {
-      t.equal(data, 'sup!')
+      t.equal(data.toString(), 'sup!')
 
       socket.destroy(function () {
         t.pass('destroyed socket')

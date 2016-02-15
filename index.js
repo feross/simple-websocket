@@ -1,10 +1,7 @@
-/* global Blob */
-
 module.exports = Socket
 
 var debug = require('debug')('simple-websocket')
 var inherits = require('inherits')
-var isTypedArray = require('is-typedarray')
 var stream = require('stream')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
@@ -76,12 +73,6 @@ Socket.WEBSOCKET_SUPPORT = !!WebSocket
  */
 Socket.prototype.send = function (chunk) {
   var self = this
-
-  if (!isTypedArray.strict(chunk) && !(chunk instanceof ArrayBuffer) &&
-    !Buffer.isBuffer(chunk) && typeof chunk !== 'string' &&
-    (typeof Blob === 'undefined' || !(chunk instanceof Blob))) {
-    chunk = JSON.stringify(chunk)
-  }
 
   var len = chunk.length || chunk.byteLength || chunk.size
   self._ws.send(chunk)
@@ -170,17 +161,8 @@ Socket.prototype._onMessage = function (event) {
   var data = event.data
   debug('read: %d bytes', data.byteLength || data.length)
 
-  if (data instanceof ArrayBuffer) {
-    data = new Buffer(data)
-    self.push(data)
-  } else if (Buffer.isBuffer(data)) {
-    self.push(data)
-  } else {
-    try {
-      data = JSON.parse(data)
-    } catch (err) {}
-    self.emit('data', data)
-  }
+  if (data instanceof ArrayBuffer) data = new Buffer(data)
+  self.push(data)
 }
 
 Socket.prototype._onOpen = function () {
