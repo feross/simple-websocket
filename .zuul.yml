@@ -8,8 +8,6 @@ browsers:
   version: latest
 - name: ie
   version: latest
-- name: microsoftedge
-  version: latest
 - name: iphone
   version: latest
 - name: ipad
