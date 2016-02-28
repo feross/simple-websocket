@@ -2,7 +2,7 @@ module.exports = Socket
 
 var debug = require('debug')('simple-websocket')
 var inherits = require('inherits')
-var stream = require('stream')
+var stream = require('readable-stream')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
 var WebSocket = typeof window !== 'undefined' ? window.WebSocket : ws
