@@ -34,7 +34,14 @@ function Socket (url, opts) {
   self._cb = null
   self._interval = null
 
-  self._ws = new WebSocket(self.url)
+  try {
+    self._ws = new WebSocket(self.url)
+  } catch (err) {
+    process.nextTick(function () {
+      self._onError(err)
+    })
+    return
+  }
   self._ws.binaryType = 'arraybuffer'
   self._ws.onopen = self._onOpen.bind(self)
   self._ws.onmessage = self._onMessage.bind(self)
