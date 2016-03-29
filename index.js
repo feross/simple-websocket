@@ -43,9 +43,15 @@ function Socket (url, opts) {
     return
   }
   self._ws.binaryType = 'arraybuffer'
-  self._ws.onopen = self._onOpen.bind(self)
-  self._ws.onmessage = self._onMessage.bind(self)
-  self._ws.onclose = self._onClose.bind(self)
+  self._ws.onopen = function () {
+    self._onOpen()
+  }
+  self._ws.onmessage = function (event) {
+    self._onMessage(event)
+  }
+  self._ws.onclose = function () {
+    self._onClose()
+  }
   self._ws.onerror = function () {
     self._onError(new Error('connection error to ' + self.url))
   }
