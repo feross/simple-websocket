@@ -35,7 +35,7 @@ function Socket (url, opts) {
   self._interval = null
 
   try {
-    self._ws = new WebSocket(self.url)
+    self._ws = new WebSocket(self.url, typeof window === 'undefined' ? opts : null)
   } catch (err) {
     process.nextTick(function () {
       self._onError(err)
