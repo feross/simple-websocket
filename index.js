@@ -37,7 +37,12 @@ function Socket (url, opts) {
   self._interval = null
 
   try {
-    self._ws = new _WebSocket(self.url, typeof WebSocket === 'undefined' ? opts : null)
+    if (typeof WebSocket === 'undefined') {
+      // `ws` package accepts options
+      self._ws = new _WebSocket(self.url, opts)
+    } else {
+      self._ws = new _WebSocket(self.url)
+    }
   } catch (err) {
     process.nextTick(function () {
       self._onError(err)
