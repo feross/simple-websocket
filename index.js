@@ -1,3 +1,5 @@
+/* global WebSocket */
+
 module.exports = Socket
 
 var debug = require('debug')('simple-websocket')
@@ -5,7 +7,7 @@ var inherits = require('inherits')
 var stream = require('readable-stream')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
-var WebSocket = typeof window !== 'undefined' ? window.WebSocket : ws
+var _WebSocket = typeof WebSocket !== 'undefined' ? WebSocket : ws
 
 inherits(Socket, stream.Duplex)
 
@@ -35,7 +37,7 @@ function Socket (url, opts) {
   self._interval = null
 
   try {
-    self._ws = new WebSocket(self.url, typeof window === 'undefined' ? opts : null)
+    self._ws = new _WebSocket(self.url, typeof WebSocket === 'undefined' ? opts : null)
   } catch (err) {
     process.nextTick(function () {
       self._onError(err)
@@ -78,7 +80,7 @@ function Socket (url, opts) {
   })
 }
 
-Socket.WEBSOCKET_SUPPORT = !!WebSocket
+Socket.WEBSOCKET_SUPPORT = !!_WebSocket
 
 /**
  * Send text/binary data to the WebSocket server.
@@ -123,7 +125,7 @@ Socket.prototype._destroy = function (err, onclose) {
       ws.onclose = null
       self.emit('close')
     }
-    if (ws.readyState === WebSocket.CLOSED) {
+    if (ws.readyState === _WebSocket.CLOSED) {
       onClose()
     } else {
       try {
