@@ -7,7 +7,7 @@ var inherits = require('inherits')
 var stream = require('readable-stream')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
-var _WebSocket = typeof WebSocket !== 'undefined' ? WebSocket : ws
+var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
 inherits(Socket, stream.Duplex)
 
@@ -37,7 +37,7 @@ function Socket (url, opts) {
   self._interval = null
 
   try {
-    if (typeof WebSocket === 'undefined') {
+    if (typeof ws === 'function') {
       // `ws` package accepts options
       self._ws = new _WebSocket(self.url, opts)
     } else {
