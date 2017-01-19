@@ -128,7 +128,6 @@ Socket.prototype._destroy = function (err, onclose) {
     var ws = self._ws
     var onClose = function () {
       ws.onclose = null
-      self.emit('close')
     }
     if (ws.readyState === _WebSocket.CLOSED) {
       onClose()
@@ -148,6 +147,7 @@ Socket.prototype._destroy = function (err, onclose) {
   self._ws = null
 
   if (err) self.emit('error', err)
+  self.emit('close')
 }
 
 Socket.prototype._read = function () {}
