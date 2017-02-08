@@ -3,34 +3,16 @@ var test = require('tape')
 
 var SOCKET_SERVER = 'wss://echo.websocket.org'
 
-test('detect WebSocket support', function (t) {
-  t.equal(Socket.WEBSOCKET_SUPPORT, true, 'websocket support')
-  t.end()
-})
-
-test('create socket without options', function (t) {
-  t.plan(1)
-
-  var socket
-  t.doesNotThrow(function () {
-    socket = new Socket()
-  })
-  socket.on('error', function (err) {
-    t.ok(err instanceof Error, 'got error')
-  })
-  socket.destroy()
-})
-
-test('echo string', function (t) {
+test('echo string {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send('sup!')
     socket.on('data', function (data) {
-      t.ok(Buffer.isBuffer(data), 'data is Buffer')
-      t.equal(data.toString(), 'sup!')
+      t.equal(typeof data, 'string', 'data is a string')
+      t.equal(data, 'sup!')
 
       socket.destroy(function () {
         t.pass('destroyed socket')
@@ -39,10 +21,10 @@ test('echo string', function (t) {
   })
 })
 
-test('echo Buffer', function (t) {
+test('echo Buffer {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Buffer([1, 2, 3]))
@@ -57,10 +39,10 @@ test('echo Buffer', function (t) {
   })
 })
 
-test('echo Uint8Array', function (t) {
+test('echo Uint8Array {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Uint8Array([1, 2, 3]))
@@ -77,10 +59,10 @@ test('echo Uint8Array', function (t) {
   })
 })
 
-test('echo ArrayBuffer', function (t) {
+test('echo ArrayBuffer {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Uint8Array([1, 2, 3]).buffer)

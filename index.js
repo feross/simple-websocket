@@ -3,6 +3,7 @@
 module.exports = Socket
 
 var debug = require('debug')('simple-websocket')
+var extend = require('xtend')
 var inherits = require('inherits')
 var randombytes = require('randombytes')
 var stream = require('readable-stream')
@@ -25,8 +26,11 @@ function Socket (url, opts) {
   self._id = randombytes(4).toString('hex').slice(0, 7)
   self._debug('new websocket: %s %o', url, opts)
 
-  opts.allowHalfOpen = false
-  if (opts.highWaterMark == null) opts.highWaterMark = 1024 * 1024
+  // TODO: replace with Object.assign() when ready to drop IE11.
+  opts = extend({}, {
+    allowHalfOpen: false,
+    highWaterMark: 1024 * 1024
+  }, opts)
 
   stream.Duplex.call(self, opts)
 
