@@ -4,6 +4,7 @@ module.exports = Socket
 
 var debug = require('debug')('simple-websocket')
 var inherits = require('inherits')
+var randombytes = require('randombytes')
 var stream = require('readable-stream')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
@@ -20,7 +21,9 @@ function Socket (url, opts) {
   var self = this
   if (!(self instanceof Socket)) return new Socket(url, opts)
   if (!opts) opts = {}
-  debug('new websocket: %s %o', url, opts)
+
+  self._id = randombytes(4).toString('hex').slice(0, 7)
+  self._debug('new websocket: %s %o', url, opts)
 
   opts.allowHalfOpen = false
   if (opts.highWaterMark == null) opts.highWaterMark = 1024 * 1024
@@ -93,10 +96,7 @@ Socket.WEBSOCKET_SUPPORT = !!_WebSocket
  */
 Socket.prototype.send = function (chunk) {
   var self = this
-
-  var len = chunk.length || chunk.byteLength || chunk.size
   self._ws.send(chunk)
-  debug('write: %d bytes', len)
 }
 
 Socket.prototype.destroy = function (onclose) {
@@ -109,9 +109,9 @@ Socket.prototype._destroy = function (err, onclose) {
   if (self.destroyed) return
   if (onclose) self.once('close', onclose)
 
-  debug('destroy (error: %s)', err && err.message)
+  self._debug('destroy (error: %s)', err && err.message)
 
-  this.readable = this.writable = false
+  self.readable = self.writable = false
 
   if (!self._readableState.ended) self.push(null)
   if (!self._writableState.finished) self.end()
@@ -163,13 +163,13 @@ Socket.prototype._write = function (chunk, encoding, cb) {
       return self._onError(err)
     }
     if (typeof ws !== 'function' && self._ws.bufferedAmount > self._maxBufferedAmount) {
-      debug('start backpressure: bufferedAmount %d', self._ws.bufferedAmount)
+      self._debug('start backpressure: bufferedAmount %d', self._ws.bufferedAmount)
       self._cb = cb
     } else {
       cb(null)
     }
   } else {
-    debug('write before connect')
+    self._debug('write before connect')
     self._chunk = chunk
     self._cb = cb
   }
@@ -179,8 +179,6 @@ Socket.prototype._onMessage = function (event) {
   var self = this
   if (self.destroyed) return
   var data = event.data
-  debug('read: %d bytes', data.byteLength || data.length)
-
   if (data instanceof ArrayBuffer) data = new Buffer(data)
   self.push(data)
 }
@@ -197,7 +195,7 @@ Socket.prototype._onOpen = function () {
       return self._onError(err)
     }
     self._chunk = null
-    debug('sent chunk from "write before connect"')
+    self._debug('sent chunk from "write before connect"')
 
     var cb = self._cb
     self._cb = null
@@ -211,7 +209,7 @@ Socket.prototype._onOpen = function () {
       if (!self._cb || !self._ws || self._ws.bufferedAmount > self._maxBufferedAmount) {
         return
       }
-      debug('ending backpressure: bufferedAmount %d', self._ws.bufferedAmount)
+      self._debug('ending backpressure: bufferedAmount %d', self._ws.bufferedAmount)
       var cb = self._cb
       self._cb = null
       cb(null)
@@ -219,20 +217,27 @@ Socket.prototype._onOpen = function () {
     if (self._interval.unref) self._interval.unref()
   }
 
-  debug('connect')
+  self._debug('connect')
   self.emit('connect')
 }
 
 Socket.prototype._onClose = function () {
   var self = this
   if (self.destroyed) return
-  debug('on close')
+  self._debug('on close')
   self._destroy()
 }
 
 Socket.prototype._onError = function (err) {
   var self = this
   if (self.destroyed) return
-  debug('error: %s', err.message || err)
+  self._debug('error: %s', err.message || err)
   self._destroy(err)
+}
+
+Socket.prototype._debug = function () {
+  var self = this
+  var args = [].slice.call(arguments)
+  args[0] = '[' + self._id + '] ' + args[0]
+  debug.apply(null, args)
 }
