@@ -10,6 +10,8 @@ var ws = require('ws') // websockets in node - will be empty object in browser
 
 var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
+var MAX_BUFFERED_AMOUNT = 64 * 1024
+
 inherits(Socket, stream.Duplex)
 
 /**
@@ -26,8 +28,7 @@ function Socket (url, opts) {
   self._debug('new websocket: %s %o', url, opts)
 
   opts = Object.assign({}, {
-    allowHalfOpen: false,
-    highWaterMark: 1024 * 1024
+    allowHalfOpen: false
   }, opts)
 
   stream.Duplex.call(self, opts)
@@ -36,7 +37,6 @@ function Socket (url, opts) {
   self.connected = false
   self.destroyed = false
 
-  self._maxBufferedAmount = opts.highWaterMark
   self._chunk = null
   self._cb = null
   self._interval = null
@@ -69,26 +69,10 @@ function Socket (url, opts) {
     self._onError(new Error('connection error to ' + self.url))
   }
 
-  self.on('finish', function () {
-    if (self.connected) {
-      // When stream is finished writing, close socket connection. Half open connections
-      // are currently not supported.
-      // Wait a bit before destroying so the socket flushes.
-      // TODO: is there a more reliable way to accomplish this?
-      setTimeout(function () {
-        self._destroy()
-      }, 100)
-    } else {
-      // If socket is not connected when stream is finished writing, wait until data is
-      // flushed to network at "connect" event.
-      // TODO: is there a more reliable way to accomplish this?
-      self.once('connect', function () {
-        setTimeout(function () {
-          self._destroy()
-        }, 100)
-      })
-    }
-  })
+  self._onFinishBound = function () {
+    self._onFinish()
+  }
+  self.once('finish', self._onFinishBound)
 }
 
 Socket.WEBSOCKET_SUPPORT = !!_WebSocket
@@ -98,13 +82,11 @@ Socket.WEBSOCKET_SUPPORT = !!_WebSocket
  * @param {TypedArrayView|ArrayBuffer|Buffer|string|Blob|Object} chunk
  */
 Socket.prototype.send = function (chunk) {
-  var self = this
-  self._ws.send(chunk)
+  this._ws.send(chunk)
 }
 
 Socket.prototype.destroy = function (onclose) {
-  var self = this
-  self._destroy(null, onclose)
+  this._destroy(null, onclose)
 }
 
 Socket.prototype._destroy = function (err, onclose) {
@@ -115,7 +97,6 @@ Socket.prototype._destroy = function (err, onclose) {
   self._debug('destroy (error: %s)', err && err.message)
 
   self.readable = self.writable = false
-
   if (!self._readableState.ended) self.push(null)
   if (!self._writableState.finished) self.end()
 
@@ -126,6 +107,9 @@ Socket.prototype._destroy = function (err, onclose) {
   self._interval = null
   self._chunk = null
   self._cb = null
+
+  self.removeListener('finish', self._onFinishBound)
+  self._onFinishBound = null
 
   if (self._ws) {
     var ws = self._ws
@@ -156,34 +140,53 @@ Socket.prototype._destroy = function (err, onclose) {
 Socket.prototype._read = function () {}
 
 Socket.prototype._write = function (chunk, encoding, cb) {
-  var self = this
-  if (self.destroyed) return cb(new Error('cannot write after socket is destroyed'))
+  if (this.destroyed) return cb(new Error('cannot write after socket is destroyed'))
 
-  if (self.connected) {
+  if (this.connected) {
     try {
-      self.send(chunk)
+      this.send(chunk)
     } catch (err) {
-      return self._onError(err)
+      return this._onError(err)
     }
-    if (typeof ws !== 'function' && self._ws.bufferedAmount > self._maxBufferedAmount) {
-      self._debug('start backpressure: bufferedAmount %d', self._ws.bufferedAmount)
-      self._cb = cb
+    if (typeof ws !== 'function' && this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
+      this._debug('start backpressure: bufferedAmount %d', this._ws.bufferedAmount)
+      this._cb = cb
     } else {
       cb(null)
     }
   } else {
-    self._debug('write before connect')
-    self._chunk = chunk
-    self._cb = cb
+    this._debug('write before connect')
+    this._chunk = chunk
+    this._cb = cb
+  }
+}
+
+// When stream finishes writing, close socket. Half open connections are not
+// supported.
+Socket.prototype._onFinish = function () {
+  var self = this
+  if (self.destroyed) return
+
+  if (self.connected) {
+    destroySoon()
+  } else {
+    self.once('connect', destroySoon)
+  }
+
+  // Wait a bit before destroying so the socket flushes.
+  // TODO: is there a more reliable way to accomplish this?
+  function destroySoon () {
+    setTimeout(function () {
+      self._destroy()
+    }, 100)
   }
 }
 
 Socket.prototype._onMessage = function (event) {
-  var self = this
-  if (self.destroyed) return
+  if (this.destroyed) return
   var data = event.data
   if (data instanceof ArrayBuffer) data = new Buffer(data)
-  self.push(data)
+  this.push(data)
 }
 
 Socket.prototype._onOpen = function () {
@@ -205,17 +208,11 @@ Socket.prototype._onOpen = function () {
     cb(null)
   }
 
-  // No backpressure in node. The `ws` module has a buggy `bufferedAmount` property.
-  // See: https://github.com/websockets/ws/issues/492
+  // Backpressure is not implemented in Node.js. The `ws` module has a buggy
+  // `bufferedAmount` property. See: https://github.com/websockets/ws/issues/492
   if (typeof ws !== 'function') {
     self._interval = setInterval(function () {
-      if (!self._cb || !self._ws || self._ws.bufferedAmount > self._maxBufferedAmount) {
-        return
-      }
-      self._debug('ending backpressure: bufferedAmount %d', self._ws.bufferedAmount)
-      var cb = self._cb
-      self._cb = null
-      cb(null)
+      self._onInterval()
     }, 150)
     if (self._interval.unref) self._interval.unref()
   }
@@ -224,23 +221,30 @@ Socket.prototype._onOpen = function () {
   self.emit('connect')
 }
 
+Socket.prototype._onInterval = function () {
+  if (!this._cb || !this._ws || this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
+    return
+  }
+  this._debug('ending backpressure: bufferedAmount %d', this._ws.bufferedAmount)
+  var cb = this._cb
+  this._cb = null
+  cb(null)
+}
+
 Socket.prototype._onClose = function () {
-  var self = this
-  if (self.destroyed) return
-  self._debug('on close')
-  self._destroy()
+  if (this.destroyed) return
+  this._debug('on close')
+  this._destroy()
 }
 
 Socket.prototype._onError = function (err) {
-  var self = this
-  if (self.destroyed) return
-  self._debug('error: %s', err.message || err)
-  self._destroy(err)
+  if (this.destroyed) return
+  this._debug('error: %s', err.message || err)
+  this._destroy(err)
 }
 
 Socket.prototype._debug = function () {
-  var self = this
   var args = [].slice.call(arguments)
-  args[0] = '[' + self._id + '] ' + args[0]
+  args[0] = '[' + this._id + '] ' + args[0]
   debug.apply(null, args)
 }
