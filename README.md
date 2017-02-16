@@ -21,9 +21,9 @@ npm install simple-websocket
 ## usage
 
 ```js
-var SimpleWebsocket = require('simple-websocket')
+var Socket = require('simple-websocket')
 
-var socket = new SimpleWebsocket('ws://echo.websocket.org')
+var socket = new Socket('ws://echo.websocket.org')
 socket.on('connect', function () {
   // socket is connected!
   socket.send('sup!')
@@ -39,11 +39,22 @@ file included in this repo. This exports a `SimpleWebsocket` function on the `wi
 
 ## api
 
-### `socket = new SimpleWebsocket([opts])`
+### `socket = new Socket(url)`
 
-Create a new WebSocket connection.
+Create a new WebSocket connection to the server at `url`. This usage is a shorthand
+for `socket = new Socket({ url: url })
 
-If `opts` is specified, then it will be passed through to the underlying superclass, `stream.Duplex`.
+### `socket = new Socket(opts)`
+
+If `opts.url` is specified as a string, then a WebSocket connection will be created
+to the server at `opts.url`.
+
+If `opts.socket` is specified as an instance of a raw WebSocket object, then the
+given WebSocket object will be used and one will not be automatically be created
+internally. (This is for advanced users.)
+
+Other properties on `opts` will be passed through to the underlying superclass,
+`stream.Duplex`.
 
 ### `socket.send(data)`
 

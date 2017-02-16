@@ -16,16 +16,29 @@ inherits(Socket, stream.Duplex)
 
 /**
  * WebSocket. Same API as node core `net.Socket`. Duplex stream.
- * @param {string} url websocket server url
- * @param {Object} opts options to stream.Duplex
+ * @param {Object} opts
+ * @param {string=} opts.url websocket server url
+ * @param {string=} opts.socket raw websocket instance to wrap
  */
-function Socket (url, opts) {
+function Socket (opts) {
   var self = this
-  if (!(self instanceof Socket)) return new Socket(url, opts)
+  if (!(self instanceof Socket)) return new Socket(opts)
   if (!opts) opts = {}
 
+  // Support simple usage: `new Socket(url)`
+  if (typeof opts === 'string') {
+    opts = { url: opts }
+  }
+
+  if (opts.url == null && opts.socket == null) {
+    throw new Error('Missing required `url` or `socket` option')
+  }
+  if (opts.url != null && opts.socket != null) {
+    throw new Error('Must specify either `url` or `socket` option, not both')
+  }
+
   self._id = randombytes(4).toString('hex').slice(0, 7)
-  self._debug('new websocket: %s %o', url, opts)
+  self._debug('new websocket: %o', opts)
 
   opts = Object.assign({}, {
     allowHalfOpen: false
@@ -33,7 +46,6 @@ function Socket (url, opts) {
 
   stream.Duplex.call(self, opts)
 
-  self.url = url
   self.connected = false
   self.destroyed = false
 
@@ -41,18 +53,24 @@ function Socket (url, opts) {
   self._cb = null
   self._interval = null
 
-  try {
-    if (typeof ws === 'function') {
-      // `ws` package accepts options
-      self._ws = new _WebSocket(self.url, opts)
-    } else {
-      self._ws = new _WebSocket(self.url)
+  if (opts.socket) {
+    self.url = opts.socket.url
+    self._ws = opts.socket
+  } else {
+    self.url = opts.url
+    try {
+      if (typeof ws === 'function') {
+        // `ws` package accepts options
+        self._ws = new _WebSocket(opts.url, opts)
+      } else {
+        self._ws = new _WebSocket(opts.url)
+      }
+    } catch (err) {
+      process.nextTick(function () {
+        self._onError(err)
+      })
+      return
     }
-  } catch (err) {
-    process.nextTick(function () {
-      self._onError(err)
-    })
-    return
   }
 
   self._ws.binaryType = 'arraybuffer'

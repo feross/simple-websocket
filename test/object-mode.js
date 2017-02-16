@@ -6,7 +6,10 @@ var SOCKET_SERVER = 'wss://echo.websocket.org'
 test('echo string {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
+  var socket = new Socket({
+    url: SOCKET_SERVER,
+    objectMode: true
+  })
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send('sup!')
@@ -24,7 +27,10 @@ test('echo string {objectMode: true}', function (t) {
 test('echo Buffer {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
+  var socket = new Socket({
+    url: SOCKET_SERVER,
+    objectMode: true
+  })
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Buffer([1, 2, 3]))
@@ -42,7 +48,10 @@ test('echo Buffer {objectMode: true}', function (t) {
 test('echo Uint8Array {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
+  var socket = new Socket({
+    url: SOCKET_SERVER,
+    objectMode: true
+  })
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Uint8Array([1, 2, 3]))
@@ -62,7 +71,10 @@ test('echo Uint8Array {objectMode: true}', function (t) {
 test('echo ArrayBuffer {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER, {objectMode: true})
+  var socket = new Socket({
+    url: SOCKET_SERVER,
+    objectMode: true
+  })
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Uint8Array([1, 2, 3]).buffer)
