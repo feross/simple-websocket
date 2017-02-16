@@ -3,7 +3,6 @@
 module.exports = Socket
 
 var debug = require('debug')('simple-websocket')
-var extend = require('xtend')
 var inherits = require('inherits')
 var randombytes = require('randombytes')
 var stream = require('readable-stream')
@@ -26,8 +25,7 @@ function Socket (url, opts) {
   self._id = randombytes(4).toString('hex').slice(0, 7)
   self._debug('new websocket: %s %o', url, opts)
 
-  // TODO: replace with Object.assign() when ready to drop IE11.
-  opts = extend({}, {
+  opts = Object.assign({}, {
     allowHalfOpen: false,
     highWaterMark: 1024 * 1024
   }, opts)
@@ -56,6 +54,7 @@ function Socket (url, opts) {
     })
     return
   }
+
   self._ws.binaryType = 'arraybuffer'
   self._ws.onopen = function () {
     self._onOpen()
