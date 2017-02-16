@@ -40,7 +40,7 @@ function Socket (opts) {
   self._id = randombytes(4).toString('hex').slice(0, 7)
   self._debug('new websocket: %o', opts)
 
-  opts = Object.assign({}, {
+  opts = Object.assign({
     allowHalfOpen: false
   }, opts)
 
@@ -126,7 +126,7 @@ Socket.prototype._destroy = function (err, onclose) {
   self._chunk = null
   self._cb = null
 
-  self.removeListener('finish', self._onFinishBound)
+  if (self._onFinishBound) self.removeListener('finish', self._onFinishBound)
   self._onFinishBound = null
 
   if (self._ws) {

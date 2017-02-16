@@ -9,6 +9,7 @@
 - **super simple** API for working with WebSockets in the browser
 - supports **text and binary data**
 - node.js [duplex stream](http://nodejs.org/api/stream.html) interface
+- client & server implementations
 
 This module works in the browser with [browserify](http://browserify.org/), and it's used by [WebTorrent](http://webtorrent.io)!
 
@@ -17,6 +18,15 @@ This module works in the browser with [browserify](http://browserify.org/), and 
 ```
 npm install simple-websocket
 ```
+
+## real-world applications that use simple-websocket
+
+- [StudyNotes](http://www.apstudynotes.org) - Helping students learn faster and better
+- [WebTorrent](https://webtorrent.io) - The streaming torrent app
+- [bittorrent-tracker](https://github.com/feross/bittorrent-tracker) - Simple, robust, BitTorrent tracker (client & server) implementation
+- [instant.io](https://github.com/feross/instant.io) - Secure, anonymous, streaming file transfer
+- [lxjs-chat](https://github.com/feross/lxjs-chat) - Omegle chat clone
+- \[ your application here - send a PR \]
 
 ## usage
 
@@ -85,7 +95,6 @@ if (Socket.WEBSOCKET_SUPPORT) {
 }
 ```
 
-
 ## events
 
 ### `socket.on('connect', function () {})`
@@ -109,12 +118,25 @@ Called when the websocket connection has closed.
 
 Fired when a fatal error occurs.
 
-## real-world applications that use simple-websocket
+## server
 
-- [StudyNotes](http://www.apstudynotes.org) - Helping students learn faster and better
-- [instant.io](https://github.com/feross/instant.io) - Secure, anonymous, streaming file transfer
-- [lxjs-chat](https://github.com/feross/lxjs-chat) - Omegle chat clone
-- \[ your application here - send a PR \]
+The server implementation is basically `ws` but the `'connection'` event provides
+sockets that are instances of `simple-websocket`, i.e. they are duplex streams.
+
+```js
+var Server = require('simple-websocket/server')
+
+var server = new Server({ port: port }) // see `ws` docs for other options
+
+server.on('connection', function (socket) {
+  socket.write('pong')
+  socket.on('data', function (data) {})
+  socket.on('close', function () {})
+  socket.on('error', function (err) {})
+})
+
+server.close()
+```
 
 ## license
 
