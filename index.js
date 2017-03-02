@@ -203,7 +203,7 @@ Socket.prototype._onFinish = function () {
 Socket.prototype._onMessage = function (event) {
   if (this.destroyed) return
   var data = event.data
-  if (data instanceof ArrayBuffer) data = new Buffer(data)
+  if (data instanceof ArrayBuffer) data = Buffer.from(data)
   this.push(data)
 }
 
