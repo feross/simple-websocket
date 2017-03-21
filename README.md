@@ -1,4 +1,13 @@
-# simple-websocket [![travis](https://img.shields.io/travis/feross/simple-websocket/master.svg)](https://travis-ci.org/feross/simple-websocket) [![npm](https://img.shields.io/npm/v/simple-websocket.svg)](https://npmjs.org/package/simple-websocket)
+# simple-websocket [![travis][travis-image]][travis-url] [![npm][npm-image]][npm-url] [![downloads][downloads-image]][downloads-url] [![javascript style guide][standard-image]][standard-url]
+
+[travis-image]: https://img.shields.io/travis/feross/simple-websocket/master.svg
+[travis-url]: https://travis-ci.org/feross/simple-websocket
+[npm-image]: https://img.shields.io/npm/v/simple-websocket.svg
+[npm-url]: https://npmjs.org/package/simple-websocket
+[downloads-image]: https://img.shields.io/npm/dm/simple-websocket.svg
+[downloads-url]: https://npmjs.org/package/simple-websocket
+[standard-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
+[standard-url]: https://standardjs.com
 
 #### Simple, EventEmitter API for WebSockets
 
