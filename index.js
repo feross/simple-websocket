@@ -2,6 +2,7 @@
 
 module.exports = Socket
 
+var Buffer = require('safe-buffer').Buffer
 var debug = require('debug')('simple-websocket')
 var inherits = require('inherits')
 var randombytes = require('randombytes')
