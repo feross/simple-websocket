@@ -197,7 +197,7 @@ Socket.prototype._onFinish = function () {
   function destroySoon () {
     setTimeout(function () {
       self._destroy()
-    }, 100)
+    }, 1000)
   }
 }
 
