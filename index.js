@@ -68,7 +68,7 @@ function Socket (opts) {
       }
     } catch (err) {
       process.nextTick(function () {
-        self._onError(err)
+        self._destroy(err)
       })
       return
     }
@@ -85,7 +85,7 @@ function Socket (opts) {
     self._onClose()
   }
   self._ws.onerror = function () {
-    self._onError(new Error('connection error to ' + self.url))
+    self._destroy(new Error('connection error to ' + self.url))
   }
 
   self._onFinishBound = function () {
@@ -113,7 +113,7 @@ Socket.prototype._destroy = function (err, onclose) {
   if (self.destroyed) return
   if (onclose) self.once('close', onclose)
 
-  self._debug('destroy (error: %s)', err && err.message)
+  self._debug('destroy (error: %s)', err && (err.message || err))
 
   self.readable = self.writable = false
   if (!self._readableState.ended) self.push(null)
@@ -165,7 +165,7 @@ Socket.prototype._write = function (chunk, encoding, cb) {
     try {
       this.send(chunk)
     } catch (err) {
-      return this._onError(err)
+      return this._destroy(err)
     }
     if (typeof ws !== 'function' && this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
       this._debug('start backpressure: bufferedAmount %d', this._ws.bufferedAmount)
@@ -217,7 +217,7 @@ Socket.prototype._onOpen = function () {
     try {
       self.send(self._chunk)
     } catch (err) {
-      return self._onError(err)
+      return self._destroy(err)
     }
     self._chunk = null
     self._debug('sent chunk from "write before connect"')
@@ -254,12 +254,6 @@ Socket.prototype._onClose = function () {
   if (this.destroyed) return
   this._debug('on close')
   this._destroy()
-}
-
-Socket.prototype._onError = function (err) {
-  if (this.destroyed) return
-  this._debug('error: %s', err.message || err)
-  this._destroy(err)
 }
 
 Socket.prototype._debug = function () {
