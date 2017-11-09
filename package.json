@@ -27,7 +27,7 @@
     "speedometer": "^1.0.0",
     "standard": "*",
     "tape": "^4.0.0",
-    "uglify-js": "^2.4.15",
+    "uglify-js": "^3.1.8",
     "zuul": "^3.0.0"
   },
   "homepage": "https://github.com/feross/simple-websocket",
