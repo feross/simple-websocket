@@ -148,7 +148,7 @@ Socket.prototype._destroy = function (err, onclose) {
 
     ws.onopen = null
     ws.onmessage = null
-    ws.onerror = null
+    ws.onerror = function () {}
   }
   self._ws = null
 
