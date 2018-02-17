@@ -1,4 +1,4 @@
-/* global WebSocket */
+/* global WebSocket, DOMException */
 
 module.exports = Socket
 
@@ -108,6 +108,12 @@ Socket.prototype.destroy = function (err) {
   var self = this
   self._destroy(err, function (err) {
     if (err) {
+      if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
+        // Convert Edge DOMException object to Error object
+        var code = err.code
+        err = new Error(err.message)
+        err.code = code
+      }
       process.nextTick(function () { self.emit('error', err) })
     }
   })
