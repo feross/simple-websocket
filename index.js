@@ -105,18 +105,7 @@ Socket.prototype.send = function (chunk) {
 // implementation of destroy() that automatically calls destroy()
 // See: https://github.com/nodejs/readable-stream/issues/283
 Socket.prototype.destroy = function (err) {
-  var self = this
-  self._destroy(err, function (err) {
-    if (err) {
-      if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
-        // Convert Edge DOMException object to Error object
-        var code = err.code
-        err = new Error(err.message)
-        err.code = code
-      }
-      process.nextTick(function () { self.emit('error', err) })
-    }
-  })
+  this._destroy(err, function () {})
 }
 
 Socket.prototype._destroy = function (err, cb) {
@@ -162,8 +151,17 @@ Socket.prototype._destroy = function (err, cb) {
   }
   self._ws = null
 
-  cb(err)
+  if (err) {
+    if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
+      // Convert Edge DOMException object to Error object
+      var code = err.code
+      err = new Error(err.message)
+      err.code = code
+    }
+    self.emit('error', err)
+  }
   self.emit('close')
+  cb()
 }
 
 Socket.prototype._read = function () {}
