@@ -22,9 +22,10 @@ test('echo string (with custom socket)', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.equal(data.toString(), 'sup!')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -43,9 +44,10 @@ test('echo Buffer (with custom socket)', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -66,9 +68,10 @@ test('echo Uint8Array (with custom socket)', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -87,9 +90,10 @@ test('echo ArrayBuffer (with custom socket)', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })

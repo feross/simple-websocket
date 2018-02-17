@@ -17,9 +17,10 @@ test('echo string {objectMode: true}', function (t) {
       t.equal(typeof data, 'string', 'data is a string')
       t.equal(data, 'sup!')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -38,9 +39,10 @@ test('echo Buffer {objectMode: true}', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -61,9 +63,10 @@ test('echo Uint8Array {objectMode: true}', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -82,9 +85,10 @@ test('echo ArrayBuffer {objectMode: true}', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })

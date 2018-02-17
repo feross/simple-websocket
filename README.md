@@ -86,11 +86,12 @@ Send text/binary data to the WebSocket server. `data` can be any of several type
 Note: If this method is called before the `socket.on('connect')` event has fired, then
 data will be buffered.
 
-### `socket.destroy([onclose])`
+### `socket.destroy([err])`
 
 Destroy and cleanup this websocket connection.
 
-If the optional `onclose` paramter is passed, then it will be registered as a listener on the 'close' event.
+If the optional `err` paramter is passed, then it will be emitted as an `'error'`
+event on the stream.
 
 ### `Socket.WEBSOCKET_SUPPORT`
 

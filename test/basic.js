@@ -8,8 +8,8 @@ test('detect WebSocket support', function (t) {
   t.end()
 })
 
-test('create socket without options', function (t) {
-  t.plan(1)
+test('create invalid socket', function (t) {
+  t.plan(2)
 
   var socket
   t.doesNotThrow(function () {
@@ -17,8 +17,8 @@ test('create socket without options', function (t) {
   })
   socket.on('error', function (err) {
     t.ok(err instanceof Error, 'got error')
+    socket.destroy()
   })
-  socket.destroy()
 })
 
 test('echo string', function (t) {
@@ -32,9 +32,10 @@ test('echo string', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.equal(data.toString(), 'sup!')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -52,9 +53,10 @@ test('echo string (opts.url version)', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.equal(data.toString(), 'sup!')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -70,9 +72,10 @@ test('echo Buffer', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -90,9 +93,10 @@ test('echo Uint8Array', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
@@ -108,9 +112,10 @@ test('echo ArrayBuffer', function (t) {
       t.ok(Buffer.isBuffer(data), 'data is Buffer')
       t.deepEqual(data, Buffer.from([1, 2, 3]), 'got correct data')
 
-      socket.destroy(function () {
+      socket.on('close', function () {
         t.pass('destroyed socket')
       })
+      socket.destroy()
     })
   })
 })
