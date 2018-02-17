@@ -67,10 +67,7 @@ function Socket (opts) {
         self._ws = new _WebSocket(opts.url)
       }
     } catch (err) {
-      process.nextTick(function () {
-        self._destroy(err)
-      })
-      return
+      return self.destroy(err)
     }
   }
 
