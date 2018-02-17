@@ -105,7 +105,7 @@ Socket.prototype.send = function (chunk) {
 }
 
 // TODO: Delete this method once readable-stream is updated to contain a default
-// implementation of destroy() that automatically calls destroy()
+// implementation of destroy() that automatically calls _destroy()
 // See: https://github.com/nodejs/readable-stream/issues/283
 Socket.prototype.destroy = function (err) {
   this._destroy(err, function () {})
