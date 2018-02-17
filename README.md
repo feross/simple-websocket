@@ -53,15 +53,17 @@ socket.on('data', function (data) {
 })
 ```
 
-Note: If you're **NOT** using browserify, then use the standalone `simplewebsocket.min.js`
-file included in this repo. This exports a `SimpleWebsocket` function on the `window`.
+**Note:** If you're **NOT** using browserify, then use the included standalone file
+`simplewebsocket.min.js`. This exports a `SimpleWebsocket` constructor on `window`.
+Wherever you see `Socket` in the examples below, substitute that with
+`SimpleWebsocket`.
 
 ## api
 
 ### `socket = new Socket(url)`
 
 Create a new WebSocket connection to the server at `url`. This usage is a shorthand
-for `socket = new Socket({ url: url })
+for `socket = new Socket({ url: url })`
 
 ### `socket = new Socket(opts)`
 
