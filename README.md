@@ -90,7 +90,7 @@ data will be buffered.
 
 Destroy and cleanup this websocket connection.
 
-If the optional `err` paramter is passed, then it will be emitted as an `'error'`
+If the optional `err` parameter is passed, then it will be emitted as an `'error'`
 event on the stream.
 
 ### `Socket.WEBSOCKET_SUPPORT`
