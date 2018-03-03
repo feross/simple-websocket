@@ -22,13 +22,13 @@
     "ws": "^4.0.0"
   },
   "devDependencies": {
+    "airtap": "0.0.4",
     "browserify": "^16.1.0",
     "prettier-bytes": "^1.0.3",
     "speedometer": "^1.0.0",
     "standard": "*",
     "tape": "^4.0.0",
-    "uglify-js": "^3.1.8",
-    "zuul": "^3.0.0"
+    "uglify-js": "^3.1.8"
   },
   "homepage": "https://github.com/feross/simple-websocket",
   "keywords": [
@@ -48,8 +48,8 @@
   "scripts": {
     "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.min.js",
     "test": "standard && npm run test-node && npm run test-browser",
-    "test-browser": "zuul -- test/*.js",
-    "test-browser-local": "zuul --local -- test/*.js",
+    "test-browser": "airtap -- test/*.js",
+    "test-browser-local": "airtap --local -- test/*.js",
     "test-node": "tape test/*.js test/node/*.js"
   }
 }
