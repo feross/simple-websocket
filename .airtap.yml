@@ -7,5 +7,7 @@ browsers:
   version: latest
 - name: safari
   version: latest
+- name: microsoftedge
+  version: latest
 - name: iphone
   version: latest
