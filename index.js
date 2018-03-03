@@ -68,7 +68,7 @@ function Socket (opts) {
       }
     } catch (err) {
       process.nextTick(function () {
-        self._destroy(err)
+        self.destroy(err)
       })
       return
     }
