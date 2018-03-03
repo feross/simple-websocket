@@ -5,12 +5,11 @@ var Socket = require('../')
 var test = require('tape')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
-var SOCKET_SERVER = 'ws://localhost:6789'
-
 var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
 var server
 test('create echo server', function (t) {
+  if (process.browser) return t.end()
   server = common.createEchoServer(function () {
     t.pass('echo server is listening')
     t.end()
@@ -20,7 +19,7 @@ test('create echo server', function (t) {
 test('echo string (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(SOCKET_SERVER)
+  var ws = new _WebSocket(common.SERVER_URL)
   var socket = new Socket({
     socket: ws
   })
@@ -42,7 +41,7 @@ test('echo string (with custom socket)', function (t) {
 test('echo Buffer (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(SOCKET_SERVER)
+  var ws = new _WebSocket(common.SERVER_URL)
   var socket = new Socket({
     socket: ws
   })
@@ -64,7 +63,7 @@ test('echo Buffer (with custom socket)', function (t) {
 test('echo Uint8Array (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(SOCKET_SERVER)
+  var ws = new _WebSocket(common.SERVER_URL)
   var socket = new Socket({
     socket: ws
   })
@@ -88,7 +87,7 @@ test('echo Uint8Array (with custom socket)', function (t) {
 test('echo ArrayBuffer (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(SOCKET_SERVER)
+  var ws = new _WebSocket(common.SERVER_URL)
   var socket = new Socket({
     socket: ws
   })
@@ -108,6 +107,7 @@ test('echo ArrayBuffer (with custom socket)', function (t) {
 })
 
 test('close server', function (t) {
+  if (process.browser) return t.end()
   server.close(function () {
     t.pass('server closed')
     t.end()

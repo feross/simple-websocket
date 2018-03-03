@@ -2,10 +2,9 @@ var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
-var SOCKET_SERVER = 'ws://localhost:6789'
-
 var server
 test('create echo server', function (t) {
+  if (process.browser) return t.end()
   server = common.createEchoServer(function () {
     t.pass('echo server is listening')
     t.end()
@@ -15,7 +14,7 @@ test('create echo server', function (t) {
 test('duplex stream: send data before "connect" event', function (t) {
   t.plan(6)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(common.SERVER_URL)
   socket.write('abc')
 
   socket.on('data', function (chunk) {
@@ -36,7 +35,7 @@ test('duplex stream: send data before "connect" event', function (t) {
 test('duplex stream: send data one-way', function (t) {
   t.plan(6)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(common.SERVER_URL)
   socket.on('connect', function () {
     socket.write('abc')
   })
@@ -57,6 +56,7 @@ test('duplex stream: send data one-way', function (t) {
 })
 
 test('close server', function (t) {
+  if (process.browser) return t.end()
   server.close(function () {
     t.pass('server closed')
     t.end()

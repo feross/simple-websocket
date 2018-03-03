@@ -2,10 +2,9 @@ var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
-var SOCKET_SERVER = 'ws://localhost:6789'
-
 var server
 test('create echo server', function (t) {
+  if (process.browser) return t.end()
   server = common.createEchoServer(function () {
     t.pass('echo server is listening')
     t.end()
@@ -33,7 +32,7 @@ test('create invalid socket', function (t) {
 test('echo string', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(common.SERVER_URL)
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send('sup!')
@@ -53,7 +52,7 @@ test('echo string (opts.url version)', function (t) {
   t.plan(4)
 
   var socket = new Socket({
-    url: SOCKET_SERVER
+    url: common.SERVER_URL
   })
   socket.on('connect', function () {
     t.pass('connect emitted')
@@ -73,7 +72,7 @@ test('echo string (opts.url version)', function (t) {
 test('echo Buffer', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(common.SERVER_URL)
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(Buffer.from([1, 2, 3]))
@@ -92,7 +91,7 @@ test('echo Buffer', function (t) {
 test('echo Uint8Array', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(common.SERVER_URL)
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Uint8Array([1, 2, 3]))
@@ -113,7 +112,7 @@ test('echo Uint8Array', function (t) {
 test('echo ArrayBuffer', function (t) {
   t.plan(4)
 
-  var socket = new Socket(SOCKET_SERVER)
+  var socket = new Socket(common.SERVER_URL)
   socket.on('connect', function () {
     t.pass('connect emitted')
     socket.send(new Uint8Array([1, 2, 3]).buffer)
@@ -130,6 +129,7 @@ test('echo ArrayBuffer', function (t) {
 })
 
 test('close server', function (t) {
+  if (process.browser) return t.end()
   server.close(function () {
     t.pass('server closed')
     t.end()

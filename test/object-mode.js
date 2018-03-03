@@ -2,10 +2,9 @@ var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
-var SOCKET_SERVER = 'ws://localhost:6789'
-
 var server
 test('create echo server', function (t) {
+  if (process.browser) return t.end()
   server = common.createEchoServer(function () {
     t.pass('echo server is listening')
     t.end()
@@ -16,7 +15,7 @@ test('echo string {objectMode: true}', function (t) {
   t.plan(4)
 
   var socket = new Socket({
-    url: SOCKET_SERVER,
+    url: common.SERVER_URL,
     objectMode: true
   })
   socket.on('connect', function () {
@@ -38,7 +37,7 @@ test('echo Buffer {objectMode: true}', function (t) {
   t.plan(4)
 
   var socket = new Socket({
-    url: SOCKET_SERVER,
+    url: common.SERVER_URL,
     objectMode: true
   })
   socket.on('connect', function () {
@@ -60,7 +59,7 @@ test('echo Uint8Array {objectMode: true}', function (t) {
   t.plan(4)
 
   var socket = new Socket({
-    url: SOCKET_SERVER,
+    url: common.SERVER_URL,
     objectMode: true
   })
   socket.on('connect', function () {
@@ -84,7 +83,7 @@ test('echo ArrayBuffer {objectMode: true}', function (t) {
   t.plan(4)
 
   var socket = new Socket({
-    url: SOCKET_SERVER,
+    url: common.SERVER_URL,
     objectMode: true
   })
   socket.on('connect', function () {
@@ -105,6 +104,7 @@ test('echo ArrayBuffer {objectMode: true}', function (t) {
 })
 
 test('close server', function (t) {
+  if (process.browser) return t.end()
   server.close(function () {
     t.pass('server closed')
     t.end()
