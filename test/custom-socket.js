@@ -4,7 +4,7 @@ var Socket = require('../')
 var test = require('tape')
 var ws = require('ws') // websockets in node - will be empty object in browser
 
-var SOCKET_SERVER = 'wss://echo.websocket.org'
+var SOCKET_SERVER = 'ws://localhost:6789'
 
 var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 

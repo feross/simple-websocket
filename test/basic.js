@@ -1,7 +1,7 @@
 var Socket = require('../')
 var test = require('tape')
 
-var SOCKET_SERVER = 'wss://echo.websocket.org'
+var SOCKET_SERVER = 'ws://localhost:6789'
 
 test('detect WebSocket support', function (t) {
   t.equal(Socket.WEBSOCKET_SUPPORT, true, 'websocket support')

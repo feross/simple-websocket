@@ -42,7 +42,7 @@ npm install simple-websocket
 ```js
 var Socket = require('simple-websocket')
 
-var socket = new Socket('ws://echo.websocket.org')
+var socket = new Socket('wss://echo.websocket.org')
 socket.on('connect', function () {
   // socket is connected!
   socket.send('sup!')

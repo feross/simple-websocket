@@ -12,7 +12,7 @@ test('socket server', function (t) {
     t.equal(typeof socket.read, 'function') // stream function is present
     socket.on('data', function (data) {
       t.equal(data.toString(), 'ping')
-      socket.write('pong')
+      socket.send('pong')
     })
   })
 
@@ -23,5 +23,5 @@ test('socket server', function (t) {
     server.close()
     client.destroy()
   })
-  client.write('ping')
+  client.send('ping')
 })
