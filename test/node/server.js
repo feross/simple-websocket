@@ -1,3 +1,5 @@
+// Test the Server class
+
 var Socket = require('../../')
 var Server = require('../../server')
 var test = require('tape')
@@ -12,7 +14,7 @@ test('socket server', function (t) {
     t.equal(typeof socket.read, 'function') // stream function is present
     socket.on('data', function (data) {
       t.equal(data.toString(), 'ping')
-      socket.send('pong')
+      socket.write('pong')
     })
   })
 
@@ -23,5 +25,5 @@ test('socket server', function (t) {
     server.close()
     client.destroy()
   })
-  client.send('ping')
+  client.write('ping')
 })

@@ -1,7 +1,16 @@
+var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
 var SOCKET_SERVER = 'ws://localhost:6789'
+
+var server
+test('create echo server', function (t) {
+  server = common.createEchoServer(function () {
+    t.pass('echo server is listening')
+    t.end()
+  })
+})
 
 test('echo string {objectMode: true}', function (t) {
   t.plan(4)
@@ -92,5 +101,12 @@ test('echo ArrayBuffer {objectMode: true}', function (t) {
       })
       socket.destroy()
     })
+  })
+})
+
+test('close server', function (t) {
+  server.close(function () {
+    t.pass('server closed')
+    t.end()
   })
 })

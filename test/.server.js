@@ -1,10 +1,4 @@
-var Server = require('../server')
+// Start an echo server for airtap browser tests
 
-// Make an echo server
-var port = 6789
-var server = new Server({ port: port })
-server.on('connection', function (socket) {
-  socket.on('data', function (data) {
-    socket.send(data)
-  })
-})
+var common = require('./common')
+common.createEchoServer()

@@ -18,7 +18,14 @@ function SocketServer (opts) {
 
   events.EventEmitter.call(self)
 
+  self.destroyed = false
+
   self._server = new WebSocketServer(opts)
+
+  self._onListeningBound = function () {
+    self._onListening()
+  }
+  self._server.on('listening', self._onListeningBound)
 
   self._onConnectionBound = function (conn) {
     self._onConnection(conn)
@@ -32,10 +39,22 @@ function SocketServer (opts) {
 }
 
 SocketServer.prototype.close = function (cb) {
-  this._server.removeListener('connection', this._onConnectionBound)
-  this._server.removeListener('error', this._onErrorBound)
-  this._server.close(cb)
-  this.emit('close')
+  var self = this
+
+  if (self.destroyed) return cb(new Error('server is closed'))
+  self.destroyed = true
+  if (cb) self.once('close', cb)
+
+  self._server.removeListener('listening', self._onListeningBound)
+  self._server.removeListener('connection', self._onConnectionBound)
+  self._server.removeListener('error', self._onErrorBound)
+  self._server.close(function () {
+    self.emit('close')
+  })
+}
+
+SocketServer.prototype._onListening = function () {
+  this.emit('listening')
 }
 
 SocketServer.prototype._onConnection = function (conn) {

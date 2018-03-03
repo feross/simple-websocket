@@ -1,7 +1,16 @@
+var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
 var SOCKET_SERVER = 'ws://localhost:6789'
+
+var server
+test('create echo server', function (t) {
+  server = common.createEchoServer(function () {
+    t.pass('echo server is listening')
+    t.end()
+  })
+})
 
 test('detect WebSocket support', function (t) {
   t.equal(Socket.WEBSOCKET_SUPPORT, true, 'websocket support')
@@ -117,5 +126,12 @@ test('echo ArrayBuffer', function (t) {
       })
       socket.destroy()
     })
+  })
+})
+
+test('close server', function (t) {
+  server.close(function () {
+    t.pass('server closed')
+    t.end()
   })
 })
