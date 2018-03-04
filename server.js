@@ -38,6 +38,10 @@ function SocketServer (opts) {
   self._server.once('error', self._onErrorBound)
 }
 
+SocketServer.prototype.address = function () {
+  return this._server.address()
+}
+
 SocketServer.prototype.close = function (cb) {
   var self = this
 
