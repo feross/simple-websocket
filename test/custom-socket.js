@@ -7,15 +7,6 @@ var ws = require('ws') // websockets in node - will be empty object in browser
 
 var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
-var server
-test('create echo server', function (t) {
-  if (process.browser) return t.end()
-  server = common.createEchoServer(function () {
-    t.pass('echo server is listening')
-    t.end()
-  })
-})
-
 test('echo string (with custom socket)', function (t) {
   t.plan(4)
 
@@ -103,13 +94,5 @@ test('echo ArrayBuffer (with custom socket)', function (t) {
       })
       socket.destroy()
     })
-  })
-})
-
-test('close server', function (t) {
-  if (process.browser) return t.end()
-  server.close(function () {
-    t.pass('server closed')
-    t.end()
   })
 })

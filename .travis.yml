@@ -2,7 +2,8 @@ language: node_js
 node_js:
   - lts/*
 addons:
-  sauce_connect: true
+  sauce_connect:
+    direct_domains: echo.websocket.org
   hosts:
     - airtap.local
 env:

@@ -2,15 +2,6 @@ var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
-var server
-test('create echo server', function (t) {
-  if (process.browser) return t.end()
-  server = common.createEchoServer(function () {
-    t.pass('echo server is listening')
-    t.end()
-  })
-})
-
 test('echo string {objectMode: true}', function (t) {
   t.plan(4)
 
@@ -22,8 +13,8 @@ test('echo string {objectMode: true}', function (t) {
     t.pass('connect emitted')
     socket.send('sup!')
     socket.on('data', function (data) {
-      t.ok(Buffer.isBuffer(data), 'data is Buffer')
-      t.equal(data.toString(), 'sup!')
+      t.equal(typeof data, 'string', 'data is a string')
+      t.equal(data, 'sup!')
 
       socket.on('close', function () {
         t.pass('destroyed socket')
@@ -100,13 +91,5 @@ test('echo ArrayBuffer {objectMode: true}', function (t) {
       })
       socket.destroy()
     })
-  })
-})
-
-test('close server', function (t) {
-  if (process.browser) return t.end()
-  server.close(function () {
-    t.pass('server closed')
-    t.end()
   })
 })

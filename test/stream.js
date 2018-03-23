@@ -2,15 +2,6 @@ var common = require('./common')
 var Socket = require('../')
 var test = require('tape')
 
-var server
-test('create echo server', function (t) {
-  if (process.browser) return t.end()
-  server = common.createEchoServer(function () {
-    t.pass('echo server is listening')
-    t.end()
-  })
-})
-
 test('duplex stream: send data before "connect" event', function (t) {
   t.plan(6)
 
@@ -52,13 +43,5 @@ test('duplex stream: send data one-way', function (t) {
   socket.on('end', function () {
     t.pass('got socket "end"')
     t.ok(socket._readableState.ended)
-  })
-})
-
-test('close server', function (t) {
-  if (process.browser) return t.end()
-  server.close(function () {
-    t.pass('server closed')
-    t.end()
   })
 })

@@ -1,6 +1,5 @@
 sauce_connect: true
 loopback: airtap.local
-server: test/.server.js
 browsers:
 - name: chrome
   version: latest
