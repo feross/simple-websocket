@@ -22,7 +22,7 @@
     "ws": "^5.0.0"
   },
   "devDependencies": {
-    "airtap": "0.0.7",
+    "airtap": "0.0.8",
     "browserify": "^16.1.0",
     "prettier-bytes": "^1.0.3",
     "speedometer": "^1.0.0",
