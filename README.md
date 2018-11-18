@@ -35,6 +35,7 @@ npm install simple-websocket
 - [bittorrent-tracker](https://github.com/feross/bittorrent-tracker) - Simple, robust, BitTorrent tracker (client & server) implementation
 - [instant.io](https://github.com/feross/instant.io) - Secure, anonymous, streaming file transfer
 - [lxjs-chat](https://github.com/feross/lxjs-chat) - Omegle chat clone
+- [Metastream](https://github.com/samuelmaddock/metastream) - Watch streaming media with friends.
 - \[ your application here - send a PR \]
 
 ## usage
