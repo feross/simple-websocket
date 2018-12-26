@@ -17,7 +17,7 @@
     "debug": "^4.1.1",
     "inherits": "^2.0.1",
     "randombytes": "^2.0.3",
-    "readable-stream": "^2.0.5",
+    "readable-stream": "^3.1.1",
     "ws": "^6.0.0"
   },
   "devDependencies": {
