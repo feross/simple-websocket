@@ -56,6 +56,7 @@ function Socket (opts) {
   if (opts.socket) {
     self.url = opts.socket.url
     self._ws = opts.socket
+    self.connected = opts.socket.readyState === _WebSocket.OPEN
   } else {
     self.url = opts.url
     try {
