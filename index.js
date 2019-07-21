@@ -48,6 +48,7 @@ class Socket extends stream.Duplex {
     if (opts.socket) {
       this.url = opts.socket.url
       this._ws = opts.socket
+      this.connected = opts.socket.readyState === _WebSocket.OPEN
     } else {
       this.url = opts.url
       try {
