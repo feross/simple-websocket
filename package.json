@@ -14,6 +14,7 @@
     "url": "https://github.com/feross/simple-websocket/issues"
   },
   "dependencies": {
+    "babel-minify": "^0.5.0",
     "debug": "^4.1.1",
     "inherits": "^2.0.1",
     "randombytes": "^2.0.3",
@@ -26,8 +27,7 @@
     "prettier-bytes": "^1.0.3",
     "speedometer": "^1.0.0",
     "standard": "*",
-    "tape": "^4.0.0",
-    "uglify-js": "^3.1.8"
+    "tape": "^4.0.0"
   },
   "homepage": "https://github.com/feross/simple-websocket",
   "keywords": [
@@ -45,7 +45,7 @@
     "url": "git://github.com/feross/simple-websocket.git"
   },
   "scripts": {
-    "build": "browserify -s SimpleWebsocket -r ./ | uglifyjs -c warnings=false -m > simplewebsocket.min.js",
+    "build": "browserify -s SimpleWebsocket -r ./ | minify > simplewebsocket.min.js",
     "test": "standard && npm run test-node && npm run test-browser",
     "test-browser": "airtap -- test/*.js",
     "test-browser-local": "airtap --local -- test/*.js",
