@@ -1,18 +1,13 @@
 /* global WebSocket, DOMException */
 
-module.exports = Socket
+const debug = require('debug')('simple-websocket')
+const randombytes = require('randombytes')
+const stream = require('readable-stream')
+const ws = require('ws') // websockets in node - will be empty object in browser
 
-var debug = require('debug')('simple-websocket')
-var inherits = require('inherits')
-var randombytes = require('randombytes')
-var stream = require('readable-stream')
-var ws = require('ws') // websockets in node - will be empty object in browser
+const _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
-var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
-
-var MAX_BUFFERED_AMOUNT = 64 * 1024
-
-inherits(Socket, stream.Duplex)
+const MAX_BUFFERED_AMOUNT = 64 * 1024
 
 /**
  * WebSocket. Same API as node core `net.Socket`. Duplex stream.
@@ -20,254 +15,245 @@ inherits(Socket, stream.Duplex)
  * @param {string=} opts.url websocket server url
  * @param {string=} opts.socket raw websocket instance to wrap
  */
-function Socket (opts) {
-  var self = this
-  if (!(self instanceof Socket)) return new Socket(opts)
-  if (!opts) opts = {}
+class Socket extends stream.Duplex {
+  constructor (opts = {}) {
+    // Support simple usage: `new Socket(url)`
+    if (typeof opts === 'string') {
+      opts = { url: opts }
+    }
 
-  // Support simple usage: `new Socket(url)`
-  if (typeof opts === 'string') {
-    opts = { url: opts }
-  }
+    opts = Object.assign({
+      allowHalfOpen: false
+    }, opts)
 
-  if (opts.url == null && opts.socket == null) {
-    throw new Error('Missing required `url` or `socket` option')
-  }
-  if (opts.url != null && opts.socket != null) {
-    throw new Error('Must specify either `url` or `socket` option, not both')
-  }
+    super(opts)
 
-  self._id = randombytes(4).toString('hex').slice(0, 7)
-  self._debug('new websocket: %o', opts)
+    if (opts.url == null && opts.socket == null) {
+      throw new Error('Missing required `url` or `socket` option')
+    }
+    if (opts.url != null && opts.socket != null) {
+      throw new Error('Must specify either `url` or `socket` option, not both')
+    }
 
-  opts = Object.assign({
-    allowHalfOpen: false
-  }, opts)
+    this._id = randombytes(4).toString('hex').slice(0, 7)
+    this._debug('new websocket: %o', opts)
 
-  stream.Duplex.call(self, opts)
+    this.connected = false
+    this.destroyed = false
 
-  self.connected = false
-  self.destroyed = false
+    this._chunk = null
+    this._cb = null
+    this._interval = null
 
-  self._chunk = null
-  self._cb = null
-  self._interval = null
-
-  if (opts.socket) {
-    self.url = opts.socket.url
-    self._ws = opts.socket
-  } else {
-    self.url = opts.url
-    try {
-      if (typeof ws === 'function') {
-        // `ws` package accepts options
-        self._ws = new _WebSocket(opts.url, opts)
-      } else {
-        self._ws = new _WebSocket(opts.url)
+    if (opts.socket) {
+      this.url = opts.socket.url
+      this._ws = opts.socket
+    } else {
+      this.url = opts.url
+      try {
+        if (typeof ws === 'function') {
+          // `ws` package accepts options
+          this._ws = new _WebSocket(opts.url, opts)
+        } else {
+          this._ws = new _WebSocket(opts.url)
+        }
+      } catch (err) {
+        process.nextTick(() => this.destroy(err))
+        return
       }
-    } catch (err) {
-      process.nextTick(function () {
-        self.destroy(err)
-      })
-      return
+    }
+
+    this._ws.binaryType = 'arraybuffer'
+    this._ws.onopen = () => {
+      this._onOpen()
+    }
+    this._ws.onmessage = event => {
+      this._onMessage(event)
+    }
+    this._ws.onclose = () => {
+      this._onClose()
+    }
+    this._ws.onerror = () => {
+      this.destroy(new Error('connection error to ' + this.url))
+    }
+
+    this._onFinishBound = () => {
+      this._onFinish()
+    }
+    this.once('finish', this._onFinishBound)
+  }
+
+  /**
+   * Send text/binary data to the WebSocket server.
+   * @param {TypedArrayView|ArrayBuffer|Buffer|string|Blob|Object} chunk
+   */
+  send (chunk) {
+    this._ws.send(chunk)
+  }
+
+  // TODO: Delete this method once readable-stream is updated to contain a default
+  // implementation of destroy() that automatically calls _destroy()
+  // See: https://github.com/nodejs/readable-stream/issues/283
+  destroy (err) {
+    this._destroy(err, () => {})
+  }
+
+  _destroy (err, cb) {
+    if (this.destroyed) return
+
+    this._debug('destroy (error: %s)', err && (err.message || err))
+
+    this.readable = this.writable = false
+    if (!this._readableState.ended) this.push(null)
+    if (!this._writableState.finished) this.end()
+
+    this.connected = false
+    this.destroyed = true
+
+    clearInterval(this._interval)
+    this._interval = null
+    this._chunk = null
+    this._cb = null
+
+    if (this._onFinishBound) this.removeListener('finish', this._onFinishBound)
+    this._onFinishBound = null
+
+    if (this._ws) {
+      const ws = this._ws
+      const onClose = () => {
+        ws.onclose = null
+      }
+      if (ws.readyState === _WebSocket.CLOSED) {
+        onClose()
+      } else {
+        try {
+          ws.onclose = onClose
+          ws.close()
+        } catch (err) {
+          onClose()
+        }
+      }
+
+      ws.onopen = null
+      ws.onmessage = null
+      ws.onerror = () => {}
+    }
+    this._ws = null
+
+    if (err) {
+      if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
+        // Convert Edge DOMException object to Error object
+        const code = err.code
+        err = new Error(err.message)
+        err.code = code
+      }
+      this.emit('error', err)
+    }
+    this.emit('close')
+    cb()
+  }
+
+  _read () {}
+
+  _write (chunk, encoding, cb) {
+    if (this.destroyed) return cb(new Error('cannot write after socket is destroyed'))
+
+    if (this.connected) {
+      try {
+        this.send(chunk)
+      } catch (err) {
+        return this.destroy(err)
+      }
+      if (typeof ws !== 'function' && this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
+        this._debug('start backpressure: bufferedAmount %d', this._ws.bufferedAmount)
+        this._cb = cb
+      } else {
+        cb(null)
+      }
+    } else {
+      this._debug('write before connect')
+      this._chunk = chunk
+      this._cb = cb
     }
   }
 
-  self._ws.binaryType = 'arraybuffer'
-  self._ws.onopen = function () {
-    self._onOpen()
-  }
-  self._ws.onmessage = function (event) {
-    self._onMessage(event)
-  }
-  self._ws.onclose = function () {
-    self._onClose()
-  }
-  self._ws.onerror = function () {
-    self.destroy(new Error('connection error to ' + self.url))
+  // When stream finishes writing, close socket. Half open connections are not
+  // supported.
+  _onFinish () {
+    if (this.destroyed) return
+
+    // Wait a bit before destroying so the socket flushes.
+    // TODO: is there a more reliable way to accomplish this?
+    const destroySoon = () => {
+      setTimeout(() => this.destroy(), 1000)
+    }
+
+    if (this.connected) {
+      destroySoon()
+    } else {
+      this.once('connect', destroySoon)
+    }
   }
 
-  self._onFinishBound = function () {
-    self._onFinish()
+  _onMessage (event) {
+    if (this.destroyed) return
+    let data = event.data
+    if (data instanceof ArrayBuffer) data = Buffer.from(data)
+    this.push(data)
   }
-  self.once('finish', self._onFinishBound)
+
+  _onOpen () {
+    if (this.connected || this.destroyed) return
+    this.connected = true
+
+    if (this._chunk) {
+      try {
+        this.send(this._chunk)
+      } catch (err) {
+        return this.destroy(err)
+      }
+      this._chunk = null
+      this._debug('sent chunk from "write before connect"')
+
+      const cb = this._cb
+      this._cb = null
+      cb(null)
+    }
+
+    // Backpressure is not implemented in Node.js. The `ws` module has a buggy
+    // `bufferedAmount` property. See: https://github.com/websockets/ws/issues/492
+    if (typeof ws !== 'function') {
+      this._interval = setInterval(() => this._onInterval(), 150)
+      if (this._interval.unref) this._interval.unref()
+    }
+
+    this._debug('connect')
+    this.emit('connect')
+  }
+
+  _onInterval () {
+    if (!this._cb || !this._ws || this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
+      return
+    }
+    this._debug('ending backpressure: bufferedAmount %d', this._ws.bufferedAmount)
+    const cb = this._cb
+    this._cb = null
+    cb(null)
+  }
+
+  _onClose () {
+    if (this.destroyed) return
+    this._debug('on close')
+    this.destroy()
+  }
+
+  _debug () {
+    const args = [].slice.call(arguments)
+    args[0] = '[' + this._id + '] ' + args[0]
+    debug.apply(null, args)
+  }
 }
 
 Socket.WEBSOCKET_SUPPORT = !!_WebSocket
 
-/**
- * Send text/binary data to the WebSocket server.
- * @param {TypedArrayView|ArrayBuffer|Buffer|string|Blob|Object} chunk
- */
-Socket.prototype.send = function (chunk) {
-  this._ws.send(chunk)
-}
-
-// TODO: Delete this method once readable-stream is updated to contain a default
-// implementation of destroy() that automatically calls _destroy()
-// See: https://github.com/nodejs/readable-stream/issues/283
-Socket.prototype.destroy = function (err) {
-  this._destroy(err, function () {})
-}
-
-Socket.prototype._destroy = function (err, cb) {
-  var self = this
-  if (self.destroyed) return
-
-  self._debug('destroy (error: %s)', err && (err.message || err))
-
-  self.readable = self.writable = false
-  if (!self._readableState.ended) self.push(null)
-  if (!self._writableState.finished) self.end()
-
-  self.connected = false
-  self.destroyed = true
-
-  clearInterval(self._interval)
-  self._interval = null
-  self._chunk = null
-  self._cb = null
-
-  if (self._onFinishBound) self.removeListener('finish', self._onFinishBound)
-  self._onFinishBound = null
-
-  if (self._ws) {
-    var ws = self._ws
-    var onClose = function () {
-      ws.onclose = null
-    }
-    if (ws.readyState === _WebSocket.CLOSED) {
-      onClose()
-    } else {
-      try {
-        ws.onclose = onClose
-        ws.close()
-      } catch (err) {
-        onClose()
-      }
-    }
-
-    ws.onopen = null
-    ws.onmessage = null
-    ws.onerror = function () {}
-  }
-  self._ws = null
-
-  if (err) {
-    if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
-      // Convert Edge DOMException object to Error object
-      var code = err.code
-      err = new Error(err.message)
-      err.code = code
-    }
-    self.emit('error', err)
-  }
-  self.emit('close')
-  cb()
-}
-
-Socket.prototype._read = function () {}
-
-Socket.prototype._write = function (chunk, encoding, cb) {
-  if (this.destroyed) return cb(new Error('cannot write after socket is destroyed'))
-
-  if (this.connected) {
-    try {
-      this.send(chunk)
-    } catch (err) {
-      return this.destroy(err)
-    }
-    if (typeof ws !== 'function' && this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
-      this._debug('start backpressure: bufferedAmount %d', this._ws.bufferedAmount)
-      this._cb = cb
-    } else {
-      cb(null)
-    }
-  } else {
-    this._debug('write before connect')
-    this._chunk = chunk
-    this._cb = cb
-  }
-}
-
-// When stream finishes writing, close socket. Half open connections are not
-// supported.
-Socket.prototype._onFinish = function () {
-  var self = this
-  if (self.destroyed) return
-
-  if (self.connected) {
-    destroySoon()
-  } else {
-    self.once('connect', destroySoon)
-  }
-
-  // Wait a bit before destroying so the socket flushes.
-  // TODO: is there a more reliable way to accomplish this?
-  function destroySoon () {
-    setTimeout(function () {
-      self.destroy()
-    }, 1000)
-  }
-}
-
-Socket.prototype._onMessage = function (event) {
-  if (this.destroyed) return
-  var data = event.data
-  if (data instanceof ArrayBuffer) data = Buffer.from(data)
-  this.push(data)
-}
-
-Socket.prototype._onOpen = function () {
-  var self = this
-  if (self.connected || self.destroyed) return
-  self.connected = true
-
-  if (self._chunk) {
-    try {
-      self.send(self._chunk)
-    } catch (err) {
-      return self.destroy(err)
-    }
-    self._chunk = null
-    self._debug('sent chunk from "write before connect"')
-
-    var cb = self._cb
-    self._cb = null
-    cb(null)
-  }
-
-  // Backpressure is not implemented in Node.js. The `ws` module has a buggy
-  // `bufferedAmount` property. See: https://github.com/websockets/ws/issues/492
-  if (typeof ws !== 'function') {
-    self._interval = setInterval(function () {
-      self._onInterval()
-    }, 150)
-    if (self._interval.unref) self._interval.unref()
-  }
-
-  self._debug('connect')
-  self.emit('connect')
-}
-
-Socket.prototype._onInterval = function () {
-  if (!this._cb || !this._ws || this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
-    return
-  }
-  this._debug('ending backpressure: bufferedAmount %d', this._ws.bufferedAmount)
-  var cb = this._cb
-  this._cb = null
-  cb(null)
-}
-
-Socket.prototype._onClose = function () {
-  if (this.destroyed) return
-  this._debug('on close')
-  this.destroy()
-}
-
-Socket.prototype._debug = function () {
-  var args = [].slice.call(arguments)
-  args[0] = '[' + this._id + '] ' + args[0]
-  debug.apply(null, args)
-}
+module.exports = Socket
