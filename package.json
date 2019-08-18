@@ -1,7 +1,7 @@
 {
   "name": "simple-websocket",
   "description": "Simple, EventEmitter API for WebSockets (browser)",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "author": {
     "name": "Feross Aboukhadijeh",
     "email": "feross@feross.org",
