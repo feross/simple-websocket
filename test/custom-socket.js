@@ -7,6 +7,23 @@ var ws = require('ws') // websockets in node - will be empty object in browser
 
 var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
+test('check connected on init (with custom socket)', function (t) {
+  t.plan(2)
+
+  var ws = new _WebSocket(common.SERVER_URL)
+  ws.onopen = function () {
+    var socket = new Socket({
+      socket: ws
+    })
+    t.true(socket.connected, 'custom socket already connected')
+
+    socket.on('close', function () {
+      t.pass('destroyed socket')
+    })
+    socket.destroy()
+  }
+})
+
 test('echo string (with custom socket)', function (t) {
   t.plan(4)
 
