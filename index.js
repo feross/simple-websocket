@@ -3,6 +3,7 @@
 const debug = require('debug')('simple-websocket')
 const randombytes = require('randombytes')
 const stream = require('readable-stream')
+const queueMicrotask = require('queue-microtask') // TODO: remove when Node 10 is not supported
 const ws = require('ws') // websockets in node - will be empty object in browser
 
 const _WebSocket = typeof ws !== 'function' ? WebSocket : ws
@@ -59,7 +60,7 @@ class Socket extends stream.Duplex {
           this._ws = new _WebSocket(opts.url)
         }
       } catch (err) {
-        process.nextTick(() => this.destroy(err))
+        queueMicrotask(() => this.destroy(err))
         return
       }
     }
