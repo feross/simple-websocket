@@ -22,12 +22,12 @@
   },
   "devDependencies": {
     "airtap": "^2.0.3",
-    "babel-minify": "^0.5.0",
     "browserify": "^16.1.0",
     "prettier-bytes": "^1.0.3",
     "speedometer": "^1.0.0",
     "standard": "*",
-    "tape": "^4.0.0"
+    "tape": "^4.0.0",
+    "tinyify": "^2.5.2"
   },
   "homepage": "https://github.com/feross/simple-websocket",
   "keywords": [
@@ -45,7 +45,8 @@
     "url": "git://github.com/feross/simple-websocket.git"
   },
   "scripts": {
-    "build": "browserify -s SimpleWebsocket -r ./ | minify > simplewebsocket.min.js",
+    "build": "browserify --plugin tinyify -s SimpleWebsocket -r ./ > simplewebsocket.min.js",
+    "size": "npm run build && cat simplewebsocket.min.js | gzip | wc -c",
     "test": "standard && npm run test-node && npm run test-browser",
     "test-browser": "airtap -- test/*.js",
     "test-browser-local": "airtap --local -- test/*.js",
