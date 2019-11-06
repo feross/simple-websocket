@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "debug": "^4.1.1",
+    "queue-microtask": "^1.1.0",
     "randombytes": "^2.0.3",
     "readable-stream": "^3.1.1",
     "ws": "^7.0.0"
