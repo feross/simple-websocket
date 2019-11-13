@@ -20,13 +20,19 @@
 - node.js [duplex stream](http://nodejs.org/api/stream.html) interface
 - client & server implementations
 
-This module works in the browser with [browserify](http://browserify.org/), and it's used by [WebTorrent](http://webtorrent.io)!
+This package is used by [WebTorrent](https://webtorrent.io).
 
 ## install
 
 ```
 npm install simple-websocket
 ```
+
+This package works in the browser with [browserify](https://browserify.org). If
+you do not use a bundler, you can use the `simplewebsocket.min.js` standalone script
+directly in a `<script>` tag. This exports a `SimpleWebsocket` constructor on
+`window`. Wherever you see `Socket` in the examples below, substitute that with
+`SimpleWebsocket`.
 
 ## real-world applications that use simple-websocket
 
@@ -53,11 +59,6 @@ socket.on('data', function (data) {
   console.log('got message: ' + data)
 })
 ```
-
-**Note:** If you're **NOT** using browserify, then use the included standalone file
-`simplewebsocket.min.js`. This exports a `SimpleWebsocket` constructor on `window`.
-Wherever you see `Socket` in the examples below, substitute that with
-`SimpleWebsocket`.
 
 ## api
 
