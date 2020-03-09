@@ -13,6 +13,8 @@ class SocketServer extends events.EventEmitter {
 
     this.destroyed = false
 
+    this._sockets = new Set()
+
     this._server = new WebSocketServer(opts)
 
     this._onListeningBound = () => this._onListening()
@@ -23,6 +25,13 @@ class SocketServer extends events.EventEmitter {
 
     this._onErrorBound = err => this._onError(err)
     this._server.once('error', this._onErrorBound)
+
+    this.once('close', () => {
+      this._sockets.forEach(socket => {
+        socket.upgradeReq = null
+      })
+      this._sockets.clear()
+    })
   }
 
   address () {
@@ -49,9 +58,6 @@ class SocketServer extends events.EventEmitter {
     socket._onOpen()
     socket.upgradeReq = conn.upgradeReq
     this.emit('connection', socket)
-    this.once('close', () => {
-      socket.upgradeReq = null
-    })
   }
 
   _onError (err) {
