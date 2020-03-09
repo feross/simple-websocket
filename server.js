@@ -55,6 +55,7 @@ class SocketServer extends events.EventEmitter {
 
   _onConnection (conn) {
     const socket = new Socket({ socket: conn })
+    this._sockets.add(socket)
     socket._onOpen()
     socket.upgradeReq = conn.upgradeReq
     this.emit('connection', socket)
