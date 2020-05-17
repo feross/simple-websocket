@@ -8,7 +8,7 @@ test('socket server', function (t) {
   t.plan(3)
 
   var port = 6789
-  var server = new Server({ port: port })
+  var server = new Server({ port })
 
   server.on('connection', function (socket) {
     t.equal(typeof socket.read, 'function') // stream function is present
