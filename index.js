@@ -1,3 +1,4 @@
+/*! simple-websocket. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* global WebSocket */
 
 const debug = require('debug')('simple-websocket')

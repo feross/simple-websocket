@@ -5,7 +5,7 @@
   "author": {
     "name": "Feross Aboukhadijeh",
     "email": "feross@feross.org",
-    "url": "http://feross.org/"
+    "url": "https://feross.org"
   },
   "browser": {
     "ws": false
@@ -55,5 +55,19 @@
   },
   "standard": {
     "parser": "babel-eslint"
-  }
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/feross"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/feross"
+    },
+    {
+      "type": "consulting",
+      "url": "https://feross.org/support"
+    }
+  ]
 }
