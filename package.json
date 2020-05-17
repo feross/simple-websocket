@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "airtap": "^3.0.0",
+    "babel-eslint": "^10.1.0",
     "babel-minify": "^0.5.1",
     "browserify": "^16.1.0",
     "prettier-bytes": "^1.0.3",
@@ -51,5 +52,8 @@
     "test-browser": "airtap -- test/*.js",
     "test-browser-local": "airtap --local -- test/*.js",
     "test-node": "tape test/*.js test/node/*.js"
+  },
+  "standard": {
+    "parser": "babel-eslint"
   }
 }

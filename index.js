@@ -1,4 +1,4 @@
-/* global WebSocket, DOMException */
+/* global WebSocket */
 
 const debug = require('debug')('simple-websocket')
 const randombytes = require('randombytes')
@@ -55,7 +55,10 @@ class Socket extends stream.Duplex {
       try {
         if (typeof ws === 'function') {
           // `ws` package accepts options
-          this._ws = new _WebSocket(opts.url, opts)
+          this._ws = new _WebSocket(opts.url, null, {
+            ...opts,
+            encoding: undefined // encoding option breaks ws internals
+          })
         } else {
           this._ws = new _WebSocket(opts.url)
         }
@@ -66,23 +69,19 @@ class Socket extends stream.Duplex {
     }
 
     this._ws.binaryType = 'arraybuffer'
-    this._ws.onopen = () => {
-      this._onOpen()
-    }
-    this._ws.onmessage = event => {
-      this._onMessage(event)
-    }
-    this._ws.onclose = () => {
-      this._onClose()
-    }
-    this._ws.onerror = () => {
-      this.destroy(new Error('connection error to ' + this.url))
+
+    if (opts.socket && this.connected) {
+      queueMicrotask(() => this._handleOpen())
+    } else {
+      this._ws.onopen = () => this._handleOpen()
     }
 
-    this._onFinishBound = () => {
-      this._onFinish()
-    }
-    this.once('finish', this._onFinishBound)
+    this._ws.onmessage = event => this._handleMessage(event)
+    this._ws.onclose = () => this._handleClose()
+    this._ws.onerror = err => this._handleError(err)
+
+    this._handleFinishBound = () => this._handleFinish()
+    this.once('finish', this._handleFinishBound)
   }
 
   /**
@@ -117,8 +116,10 @@ class Socket extends stream.Duplex {
     this._chunk = null
     this._cb = null
 
-    if (this._onFinishBound) this.removeListener('finish', this._onFinishBound)
-    this._onFinishBound = null
+    if (this._handleFinishBound) {
+      this.removeListener('finish', this._handleFinishBound)
+    }
+    this._handleFinishBound = null
 
     if (this._ws) {
       const ws = this._ws
@@ -142,15 +143,7 @@ class Socket extends stream.Duplex {
     }
     this._ws = null
 
-    if (err) {
-      if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
-        // Convert Edge DOMException object to Error object
-        const code = err.code
-        err = new Error(err.message)
-        err.code = code
-      }
-      this.emit('error', err)
-    }
+    if (err) this.emit('error', err)
     this.emit('close')
     cb()
   }
@@ -179,32 +172,7 @@ class Socket extends stream.Duplex {
     }
   }
 
-  // When stream finishes writing, close socket. Half open connections are not
-  // supported.
-  _onFinish () {
-    if (this.destroyed) return
-
-    // Wait a bit before destroying so the socket flushes.
-    // TODO: is there a more reliable way to accomplish this?
-    const destroySoon = () => {
-      setTimeout(() => this.destroy(), 1000)
-    }
-
-    if (this.connected) {
-      destroySoon()
-    } else {
-      this.once('connect', destroySoon)
-    }
-  }
-
-  _onMessage (event) {
-    if (this.destroyed) return
-    let data = event.data
-    if (data instanceof ArrayBuffer) data = Buffer.from(data)
-    this.push(data)
-  }
-
-  _onOpen () {
+  _handleOpen () {
     if (this.connected || this.destroyed) return
     this.connected = true
 
@@ -233,6 +201,41 @@ class Socket extends stream.Duplex {
     this.emit('connect')
   }
 
+  _handleMessage (event) {
+    if (this.destroyed) return
+    let data = event.data
+    if (data instanceof ArrayBuffer) data = Buffer.from(data)
+    this.push(data)
+  }
+
+  _handleClose () {
+    if (this.destroyed) return
+    this._debug('on close')
+    this.destroy()
+  }
+
+  _handleError (err) {
+    this.destroy(new Error(`Error connecting to ${this.url} (${err})`))
+  }
+
+  // When stream finishes writing, close socket. Half open connections are not
+  // supported.
+  _handleFinish () {
+    if (this.destroyed) return
+
+    // Wait a bit before destroying so the socket flushes.
+    // TODO: is there a more reliable way to accomplish this?
+    const destroySoon = () => {
+      setTimeout(() => this.destroy(), 1000)
+    }
+
+    if (this.connected) {
+      destroySoon()
+    } else {
+      this.once('connect', destroySoon)
+    }
+  }
+
   _onInterval () {
     if (!this._cb || !this._ws || this._ws.bufferedAmount > MAX_BUFFERED_AMOUNT) {
       return
@@ -241,12 +244,6 @@ class Socket extends stream.Duplex {
     const cb = this._cb
     this._cb = null
     cb(null)
-  }
-
-  _onClose () {
-    if (this.destroyed) return
-    this._debug('on close')
-    this.destroy()
   }
 
   _debug () {

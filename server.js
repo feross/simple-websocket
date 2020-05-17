@@ -4,25 +4,20 @@ const WebSocketServer = require('ws').Server
 
 class SocketServer extends events.EventEmitter {
   constructor (opts) {
-    opts = Object.assign({
-      clientTracking: false,
-      perMessageDeflate: false
-    }, opts)
-
     super()
+
+    this.opts = {
+      clientTracking: false,
+      perMessageDeflate: false,
+      ...opts
+    }
 
     this.destroyed = false
 
-    this._server = new WebSocketServer(opts)
-
-    this._onListeningBound = () => this._onListening()
-    this._server.on('listening', this._onListeningBound)
-
-    this._onConnectionBound = conn => this._onConnection(conn)
-    this._server.on('connection', this._onConnectionBound)
-
-    this._onErrorBound = err => this._onError(err)
-    this._server.once('error', this._onErrorBound)
+    this._server = new WebSocketServer(this.opts)
+    this._server.on('listening', this._handleListening)
+    this._server.on('connection', this._handleConnection)
+    this._server.once('error', this._handleError)
   }
 
   address () {
@@ -30,31 +25,33 @@ class SocketServer extends events.EventEmitter {
   }
 
   close (cb) {
-    if (this.destroyed) return cb(new Error('server is closed'))
+    if (this.destroyed) {
+      if (cb) cb(new Error('server is closed'))
+      return
+    }
     this.destroyed = true
+
     if (cb) this.once('close', cb)
 
-    this._server.removeListener('listening', this._onListeningBound)
-    this._server.removeListener('connection', this._onConnectionBound)
-    this._server.removeListener('error', this._onErrorBound)
+    this._server.removeListener('listening', this._handleListening)
+    this._server.removeListener('connection', this._handleConnection)
+    this._server.removeListener('error', this._handleError)
+    this._server.on('error', () => {}) // suppress future errors
+
     this._server.close(() => this.emit('close'))
+    this._server = null
   }
 
-  _onListening () {
+  _handleListening = () => {
     this.emit('listening')
   }
 
-  _onConnection (conn) {
-    const socket = new Socket({ socket: conn })
-    socket._onOpen()
-    socket.upgradeReq = conn.upgradeReq
-    this.emit('connection', socket)
-    this.once('close', () => {
-      socket.upgradeReq = null
-    })
+  _handleConnection = (conn, req) => {
+    const socket = new Socket({ ...this.opts, socket: conn })
+    this.emit('connection', socket, req)
   }
 
-  _onError (err) {
+  _handleError = (err) => {
     this.emit('error', err)
     this.close()
   }
