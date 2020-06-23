@@ -36,8 +36,9 @@ directly in a `<script>` tag. This exports a `SimpleWebsocket` constructor on
 
 ## real-world applications that use simple-websocket
 
-- [StudyNotes](http://www.apstudynotes.org) - Helping students learn faster and better
+- [Virus Cafe](https://virus.cafe) - Make a friend in 2 minutes
 - [WebTorrent](https://webtorrent.io) - The streaming torrent app
+- [StudyNotes](http://www.apstudynotes.org) - Helping students learn faster and better
 - [bittorrent-tracker](https://github.com/feross/bittorrent-tracker) - Simple, robust, BitTorrent tracker (client & server) implementation
 - [instant.io](https://github.com/feross/instant.io) - Secure, anonymous, streaming file transfer
 - [lxjs-chat](https://github.com/feross/lxjs-chat) - Omegle chat clone
