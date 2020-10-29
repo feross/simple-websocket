@@ -3,18 +3,18 @@
 
 // 6.7MB
 
-var Socket = require('../')
-var stream = require('readable-stream')
+const Socket = require('../')
+const stream = require('readable-stream')
 
-var buf = Buffer.alloc(1000)
+const buf = Buffer.alloc(1000)
 
-var endless = new stream.Readable({
+const endless = new stream.Readable({
   read: function () {
     this.push(buf)
   }
 })
 
-var socket = new Socket('ws://localhost:8080')
+const socket = new Socket('ws://localhost:8080')
 socket.on('connect', function () {
   endless.pipe(socket)
 })

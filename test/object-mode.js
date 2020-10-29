@@ -1,11 +1,11 @@
-var common = require('./common')
-var Socket = require('../')
-var test = require('tape')
+const common = require('./common')
+const Socket = require('../')
+const test = require('tape')
 
 test('echo string {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket({
+  const socket = new Socket({
     url: common.SERVER_URL,
     objectMode: true
   })
@@ -27,7 +27,7 @@ test('echo string {objectMode: true}', function (t) {
 test('echo Buffer {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket({
+  const socket = new Socket({
     url: common.SERVER_URL,
     objectMode: true
   })
@@ -49,7 +49,7 @@ test('echo Buffer {objectMode: true}', function (t) {
 test('echo Uint8Array {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket({
+  const socket = new Socket({
     url: common.SERVER_URL,
     objectMode: true
   })
@@ -73,7 +73,7 @@ test('echo Uint8Array {objectMode: true}', function (t) {
 test('echo ArrayBuffer {objectMode: true}', function (t) {
   t.plan(4)
 
-  var socket = new Socket({
+  const socket = new Socket({
     url: common.SERVER_URL,
     objectMode: true
   })

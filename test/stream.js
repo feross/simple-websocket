@@ -1,11 +1,11 @@
-var common = require('./common')
-var Socket = require('../')
-var test = require('tape')
+const common = require('./common')
+const Socket = require('../')
+const test = require('tape')
 
 test('duplex stream: send data before "connect" event', function (t) {
   t.plan(6)
 
-  var socket = new Socket(common.SERVER_URL)
+  const socket = new Socket(common.SERVER_URL)
   socket.write('abc')
 
   socket.on('data', function (chunk) {
@@ -26,7 +26,7 @@ test('duplex stream: send data before "connect" event', function (t) {
 test('duplex stream: send data one-way', function (t) {
   t.plan(6)
 
-  var socket = new Socket(common.SERVER_URL)
+  const socket = new Socket(common.SERVER_URL)
   socket.on('connect', function () {
     socket.write('abc')
   })

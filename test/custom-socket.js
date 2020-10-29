@@ -1,18 +1,18 @@
 /* global WebSocket */
 
-var common = require('./common')
-var Socket = require('../')
-var test = require('tape')
-var ws = require('ws') // websockets in node - will be empty object in browser
+const common = require('./common')
+const Socket = require('../')
+const test = require('tape')
+const ws = require('ws') // websockets in node - will be empty object in browser
 
-var _WebSocket = typeof ws !== 'function' ? WebSocket : ws
+const _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
 test('check connected on init (with custom socket)', function (t) {
   t.plan(2)
 
-  var ws = new _WebSocket(common.SERVER_URL)
+  const ws = new _WebSocket(common.SERVER_URL)
   ws.onopen = function () {
-    var socket = new Socket({
+    const socket = new Socket({
       socket: ws
     })
     t.true(socket.connected, 'custom socket already connected')
@@ -27,8 +27,8 @@ test('check connected on init (with custom socket)', function (t) {
 test('echo string (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(common.SERVER_URL)
-  var socket = new Socket({
+  const ws = new _WebSocket(common.SERVER_URL)
+  const socket = new Socket({
     socket: ws
   })
   socket.on('connect', function () {
@@ -49,8 +49,8 @@ test('echo string (with custom socket)', function (t) {
 test('echo Buffer (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(common.SERVER_URL)
-  var socket = new Socket({
+  const ws = new _WebSocket(common.SERVER_URL)
+  const socket = new Socket({
     socket: ws
   })
   socket.on('connect', function () {
@@ -71,8 +71,8 @@ test('echo Buffer (with custom socket)', function (t) {
 test('echo Uint8Array (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(common.SERVER_URL)
-  var socket = new Socket({
+  const ws = new _WebSocket(common.SERVER_URL)
+  const socket = new Socket({
     socket: ws
   })
   socket.on('connect', function () {
@@ -95,8 +95,8 @@ test('echo Uint8Array (with custom socket)', function (t) {
 test('echo ArrayBuffer (with custom socket)', function (t) {
   t.plan(4)
 
-  var ws = new _WebSocket(common.SERVER_URL)
-  var socket = new Socket({
+  const ws = new _WebSocket(common.SERVER_URL)
+  const socket = new Socket({
     socket: ws
   })
   socket.on('connect', function () {
