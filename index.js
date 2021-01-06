@@ -216,7 +216,7 @@ class Socket extends stream.Duplex {
   }
 
   _handleError (err) {
-    this.destroy(new Error(`Error connecting to ${this.url} (${err})`))
+    this.destroy(new Error(`Error connecting to ${this.url}`))
   }
 
   // When stream finishes writing, close socket. Half open connections are not
