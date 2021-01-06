@@ -14,21 +14,21 @@
     "url": "https://github.com/feross/simple-websocket/issues"
   },
   "dependencies": {
-    "debug": "^4.1.1",
-    "queue-microtask": "^1.1.0",
-    "randombytes": "^2.0.3",
-    "readable-stream": "^3.1.1",
-    "ws": "^7.0.0"
+    "debug": "^4.3.1",
+    "queue-microtask": "^1.2.2",
+    "randombytes": "^2.1.0",
+    "readable-stream": "^3.6.0",
+    "ws": "^7.4.2"
   },
   "devDependencies": {
     "airtap": "^3.0.0",
     "babel-eslint": "^10.1.0",
     "babel-minify": "^0.5.1",
     "browserify": "^16.1.0",
-    "prettier-bytes": "^1.0.3",
-    "speedometer": "^1.0.0",
+    "prettier-bytes": "^1.0.4",
+    "speedometer": "^1.1.0",
     "standard": "*",
-    "tape": "^5.0.0"
+    "tape": "^5.1.1"
   },
   "homepage": "https://github.com/feross/simple-websocket",
   "keywords": [
