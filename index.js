@@ -93,13 +93,6 @@ class Socket extends stream.Duplex {
     this._ws.send(chunk)
   }
 
-  // TODO: Delete this method once readable-stream is updated to contain a default
-  // implementation of destroy() that automatically calls _destroy()
-  // See: https://github.com/nodejs/readable-stream/issues/283
-  destroy (err) {
-    this._destroy(err, () => {})
-  }
-
   _destroy (err, cb) {
     if (this.destroyed) return
 
