@@ -208,7 +208,7 @@ class Socket extends stream.Duplex {
     this.destroy()
   }
 
-  _handleError (err) {
+  _handleError (_) {
     this.destroy(new Error(`Error connecting to ${this.url}`))
   }
 
