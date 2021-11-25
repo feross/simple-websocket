@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "debug": "^4.3.1",
+    "isomorphic-ws": "^4.0.1",
     "queue-microtask": "^1.2.2",
     "randombytes": "^2.1.0",
     "readable-stream": "^3.6.0",
