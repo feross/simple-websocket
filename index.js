@@ -5,9 +5,7 @@ const debug = require('debug')('simple-websocket')
 const randombytes = require('randombytes')
 const stream = require('readable-stream')
 const queueMicrotask = require('queue-microtask') // TODO: remove when Node 10 is not supported
-const ws = require('ws') // websockets in node - will be empty object in browser
-
-const _WebSocket = typeof ws !== 'function' ? WebSocket : ws
+const _WebSocket = require('isomorphic-ws') // isomorphic-ws will automatically choose between the node or the browser version
 
 const MAX_BUFFERED_AMOUNT = 64 * 1024
 
