@@ -3,9 +3,9 @@
 
 const debug = require('debug')('simple-websocket')
 const randombytes = require('randombytes')
-const stream = require('readable-stream')
 const queueMicrotask = require('queue-microtask') // TODO: remove when Node 10 is not supported
 const ws = require('ws') // websockets in node - will be empty object in browser
+const { Duplex } = require('streamx')
 
 const _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
@@ -17,7 +17,7 @@ const MAX_BUFFERED_AMOUNT = 64 * 1024
  * @param {string=} opts.url websocket server url
  * @param {string=} opts.socket raw websocket instance to wrap
  */
-class Socket extends stream.Duplex {
+class Socket extends Duplex {
   constructor (opts = {}) {
     // Support simple usage: `new Socket(url)`
     if (typeof opts === 'string') {
@@ -30,6 +30,9 @@ class Socket extends stream.Duplex {
 
     super(opts)
 
+    this.__objectMode = !!opts.objectMode // streamx is objectMode by default, so implement readable's fuctionality
+    if (opts.objectMode != null) delete opts.objectMode // causes error with ws...
+
     if (opts.url == null && opts.socket == null) {
       throw new Error('Missing required `url` or `socket` option')
     }
@@ -41,7 +44,6 @@ class Socket extends stream.Duplex {
     this._debug('new websocket: %o', opts)
 
     this.connected = false
-    this.destroyed = false
 
     this._chunk = null
     this._cb = null
@@ -93,24 +95,16 @@ class Socket extends stream.Duplex {
     this._ws.send(chunk)
   }
 
-  // TODO: Delete this method once readable-stream is updated to contain a default
-  // implementation of destroy() that automatically calls _destroy()
-  // See: https://github.com/nodejs/readable-stream/issues/283
-  destroy (err) {
-    this._destroy(err, () => {})
+  _final (cb) {
+    if (!this._readableState.ended) this.push(null)
+    cb(null)
   }
 
-  _destroy (err, cb) {
+  _destroy (cb) {
     if (this.destroyed) return
-
-    this._debug('destroy (error: %s)', err && (err.message || err))
-
-    this.readable = this.writable = false
-    if (!this._readableState.ended) this.push(null)
-    if (!this._writableState.finished) this.end()
+    if (!this._writableState.ended) this.end()
 
     this.connected = false
-    this.destroyed = true
 
     clearInterval(this._interval)
     this._interval = null
@@ -144,14 +138,10 @@ class Socket extends stream.Duplex {
     }
     this._ws = null
 
-    if (err) this.emit('error', err)
-    this.emit('close')
     cb()
   }
 
-  _read () {}
-
-  _write (chunk, encoding, cb) {
+  _write (chunk, cb) {
     if (this.destroyed) return cb(new Error('cannot write after socket is destroyed'))
 
     if (this.connected) {
@@ -205,7 +195,7 @@ class Socket extends stream.Duplex {
   _handleMessage (event) {
     if (this.destroyed) return
     let data = event.data
-    if (data instanceof ArrayBuffer) data = Buffer.from(data)
+    if (data instanceof ArrayBuffer || this.__objectMode === false) data = Buffer.from(data)
     this.push(data)
   }
 

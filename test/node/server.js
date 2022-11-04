@@ -7,8 +7,8 @@ const test = require('tape')
 test('socket server', function (t) {
   t.plan(5)
 
-  const port = 6789
-  const server = new Server({ port })
+  const server = new Server({ port: 0 })
+  const port = server._server._server.address().port
 
   server.on('connection', function (socket) {
     t.equal(typeof socket.read, 'function') // stream function is present
@@ -30,11 +30,11 @@ test('socket server', function (t) {
   client.write('ping')
 })
 
-test('socket server, with custom encoding', function (t) {
+test('socket server, with objectmode', function (t) {
   t.plan(5)
 
-  const port = 6789
-  const server = new Server({ port, encoding: 'utf8' })
+  const server = new Server({ port: 0, objectMode: true })
+  const port = server._server._server.address().port
 
   server.on('connection', function (socket) {
     t.equal(typeof socket.read, 'function') // stream function is present
@@ -45,7 +45,7 @@ test('socket server, with custom encoding', function (t) {
     })
   })
 
-  const client = new Socket({ url: 'ws://localhost:' + port, encoding: 'utf8' })
+  const client = new Socket({ url: 'ws://localhost:' + port, objectMode: true })
   client.on('data', function (data) {
     t.equal(typeof data, 'string', 'type is string')
     t.equal(data, 'pong')
