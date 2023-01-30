@@ -1,8 +1,8 @@
-const events = require('events')
-const Socket = require('./')
-const WebSocketServer = require('ws').Server
+import events from 'events'
+import Socket from './index.js'
+import { WebSocketServer } from 'ws'
 
-class SocketServer extends events.EventEmitter {
+export default class SocketServer extends events.EventEmitter {
   constructor (opts) {
     super()
 
@@ -56,5 +56,3 @@ class SocketServer extends events.EventEmitter {
     this.close()
   }
 }
-
-module.exports = SocketServer

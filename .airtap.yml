@@ -1,5 +1,4 @@
 sauce_connect: true
-loopback: airtap.local
 browsers:
   - name: chrome
     version: latest
@@ -13,3 +12,13 @@ browsers:
     version: latest
   - name: android
     version: latest
+presets:
+  local:
+    providers: airtap-manual
+    browsers:
+      - name: manual
+browserify:
+  - transform: babelify
+    global: true
+    presets: ['@babel/preset-env']
+    plugins: ['@babel/plugin-syntax-import-assertions']
