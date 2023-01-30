@@ -1,11 +1,13 @@
 /*! simple-websocket. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* global WebSocket */
 
-const debug = require('debug')('simple-websocket')
-const randombytes = require('randombytes')
-const queueMicrotask = require('queue-microtask') // TODO: remove when Node 10 is not supported
-const ws = require('ws') // websockets in node - will be empty object in browser
-const { Duplex } = require('streamx')
+import Debug from 'debug'
+import queueMicrotask from 'queue-microtask' // TODO: remove when Node 10 is not supported
+import ws from 'ws' // websockets in node - will be empty object in browser
+import { Duplex } from 'streamx'
+import { text2arr, randomBytes, arr2hex } from 'uint8-util'
+
+const debug = Debug('simple-websocket')
 
 const _WebSocket = typeof ws !== 'function' ? WebSocket : ws
 
@@ -17,7 +19,7 @@ const MAX_BUFFERED_AMOUNT = 64 * 1024
  * @param {string=} opts.url websocket server url
  * @param {string=} opts.socket raw websocket instance to wrap
  */
-class Socket extends Duplex {
+export default class Socket extends Duplex {
   constructor (opts = {}) {
     // Support simple usage: `new Socket(url)`
     if (typeof opts === 'string') {
@@ -40,7 +42,7 @@ class Socket extends Duplex {
       throw new Error('Must specify either `url` or `socket` option, not both')
     }
 
-    this._id = randombytes(4).toString('hex').slice(0, 7)
+    this._id = arr2hex(randomBytes(4)).slice(0, 7)
     this._debug('new websocket: %o', opts)
 
     this.connected = false
@@ -58,7 +60,7 @@ class Socket extends Duplex {
       try {
         if (typeof ws === 'function') {
           // `ws` package accepts options
-          this._ws = new _WebSocket(opts.url, null, {
+          this._ws = new _WebSocket(opts.url, {
             ...opts,
             encoding: undefined // encoding option breaks ws internals
           })
@@ -89,7 +91,7 @@ class Socket extends Duplex {
 
   /**
    * Send text/binary data to the WebSocket server.
-   * @param {TypedArrayView|ArrayBuffer|Buffer|string|Blob|Object} chunk
+   * @param {TypedArrayView|ArrayBuffer|Uint8Array|string|Blob|Object} chunk
    */
   send (chunk) {
     this._ws.send(chunk)
@@ -195,7 +197,8 @@ class Socket extends Duplex {
   _handleMessage (event) {
     if (this.destroyed) return
     let data = event.data
-    if (data instanceof ArrayBuffer || this.__objectMode === false) data = Buffer.from(data)
+    if (data instanceof ArrayBuffer) data = new Uint8Array(data)
+    if (this.__objectMode === false) data = text2arr(data)
     this.push(data)
   }
 
@@ -245,5 +248,3 @@ class Socket extends Duplex {
 }
 
 Socket.WEBSOCKET_SUPPORT = !!_WebSocket
-
-module.exports = Socket

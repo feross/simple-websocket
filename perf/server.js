@@ -1,12 +1,12 @@
 // run in a terminal, look at Node.js console for speed
 
-const prettierBytes = require('prettier-bytes')
-const speedometer = require('speedometer')
-const ws = require('ws')
+import prettierBytes from 'prettier-bytes'
+import speedometer from 'speedometer'
+import { Server } from 'ws'
 
 const speed = speedometer()
 
-const server = new ws.Server({
+const server = new Server({
   perMessageDeflate: false,
   port: 8080
 })

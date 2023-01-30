@@ -1,6 +1,6 @@
-const common = require('./common')
-const Socket = require('../')
-const test = require('tape')
+import common from './common.js'
+import Socket from '../index.js'
+import test from 'tape'
 
 test('duplex stream: send data before "connect" event', function (t) {
   t.plan(6)
@@ -10,7 +10,7 @@ test('duplex stream: send data before "connect" event', function (t) {
 
   socket.on('data', function (chunk) {
     t.ok(socket.connected)
-    t.equal(chunk.toString(), 'abc', 'got correct message')
+    t.equal(Buffer.from(chunk).toString(), 'abc', 'got correct message')
     socket.end()
   })
   socket.on('finish', function () {
@@ -33,7 +33,7 @@ test('duplex stream: send data one-way', function (t) {
 
   socket.on('data', function (chunk) {
     t.ok(socket.connected)
-    t.equal(chunk.toString(), 'abc', 'got correct message')
+    t.equal(Buffer.from(chunk).toString(), 'abc', 'got correct message')
     socket.end()
   })
   socket.on('finish', function () {

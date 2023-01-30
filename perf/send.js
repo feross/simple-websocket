@@ -3,8 +3,8 @@
 
 // 6.7MB
 
-const Socket = require('../')
-const stream = require('readable-stream')
+import Socket from '../index.js'
+import stream from 'readable-stream'
 
 const buf = Buffer.alloc(1000)
 
